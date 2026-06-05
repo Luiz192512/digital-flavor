@@ -9,13 +9,17 @@ interface SustainabilityStripProps {
   activeStock: number
   queuedOrders: number
   wasteReduction: number
+  showMetrics?: boolean
+  showColorGuide?: boolean
 }
 
 export function SustainabilityStrip({
   salesCents,
   activeStock,
   queuedOrders,
-  wasteReduction
+  wasteReduction,
+  showMetrics = true,
+  showColorGuide = true
 }: SustainabilityStripProps) {
   return (
     <section className="mx-auto grid max-w-7xl gap-4 px-5 py-6 md:grid-cols-4">
@@ -29,9 +33,9 @@ export function SustainabilityStrip({
               Pedido do aluno e gestao da cantina trabalhando juntos.
             </h1>
             <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600">
-              O Digital Flavor reduz fila, melhora previsao de preparo e ajuda a escola a
-              controlar estoque com menos desperdicio. A mesma tela mostra compra,
-              operacao e indicadores de sustentabilidade.
+              O Digital Flavor reduz fila, melhora previsao de preparo e ajuda a
+              escola a controlar estoque com menos desperdicio. A mesma tela
+              mostra compra, operacao e indicadores de sustentabilidade.
             </p>
           </div>
           <img
@@ -42,66 +46,87 @@ export function SustainabilityStrip({
         </div>
       </Panel>
 
-      <MetricCard
-        label="Vendas do dia"
-        value={formatCurrency(salesCents)}
-        detail="Pedidos antecipados e balcão"
-        tone="info"
-      />
-      <MetricCard
-        label="Estoque ativo"
-        value={formatNumber(activeStock)}
-        detail="Unidades disponiveis"
-        tone="success"
-      />
-      <MetricCard
-        label="Fila agora"
-        value={`${queuedOrders} pedidos`}
-        detail="FIFO por horario de chegada"
-        tone="warning"
-      />
-      <MetricCard
-        label="Desperdicio"
-        value={formatPercent(wasteReduction)}
-        detail="Reducao estimada semanal"
-        tone="success"
-      />
+      {showMetrics ? (
+        <>
+          <MetricCard
+            label="Vendas do dia"
+            value={formatCurrency(salesCents)}
+            detail="Pedidos antecipados e balcão"
+            tone="info"
+          />
+          <MetricCard
+            label="Estoque ativo"
+            value={formatNumber(activeStock)}
+            detail="Unidades disponiveis"
+            tone="success"
+          />
+          <MetricCard
+            label="Fila agora"
+            value={`${queuedOrders} pedidos`}
+            detail="FIFO por horario de chegada"
+            tone="warning"
+          />
+          <MetricCard
+            label="Desperdicio"
+            value={formatPercent(wasteReduction)}
+            detail="Reducao estimada semanal"
+            tone="success"
+          />
+        </>
+      ) : null}
 
-      <Panel className="md:col-span-4">
-        <div className="grid gap-4 p-5 md:grid-cols-4">
-          <div className="flex items-start gap-3">
-            <Leaf className="mt-1 text-green-600" aria-hidden="true" />
-            <div>
-              <h2 className="font-bold text-slate-950">Verde para sustentabilidade</h2>
-              <p className="mt-1 text-sm text-slate-600">Disponibilidade, ODS 12 e frescor.</p>
+      {showColorGuide ? (
+        <Panel className="md:col-span-4">
+          <div className="grid gap-4 p-5 md:grid-cols-4">
+            <div className="flex items-start gap-3">
+              <Leaf className="mt-1 text-green-600" aria-hidden="true" />
+              <div>
+                <h2 className="font-bold text-slate-950">
+                  Verde para sustentabilidade
+                </h2>
+                <p className="mt-1 text-sm text-slate-600">
+                  Disponibilidade, ODS 12 e frescor.
+                </p>
+              </div>
             </div>
-          </div>
-          <div className="flex items-start gap-3">
-            <PackageCheck className="mt-1 text-blue-600" aria-hidden="true" />
-            <div>
-              <h2 className="font-bold text-slate-950">Azul para operacao</h2>
-              <p className="mt-1 text-sm text-slate-600">Status, gestao e confianca.</p>
+            <div className="flex items-start gap-3">
+              <PackageCheck className="mt-1 text-blue-600" aria-hidden="true" />
+              <div>
+                <h2 className="font-bold text-slate-950">Azul para operacao</h2>
+                <p className="mt-1 text-sm text-slate-600">
+                  Status, gestao e confianca.
+                </p>
+              </div>
             </div>
-          </div>
-          <div className="flex items-start gap-3">
-            <WalletCards className="mt-1 text-orange-500" aria-hidden="true" />
-            <div>
-              <h2 className="font-bold text-slate-950">Laranja para acao</h2>
-              <p className="mt-1 text-sm text-slate-600">Compra, apetite e chamadas.</p>
+            <div className="flex items-start gap-3">
+              <WalletCards
+                className="mt-1 text-orange-500"
+                aria-hidden="true"
+              />
+              <div>
+                <h2 className="font-bold text-slate-950">Laranja para acao</h2>
+                <p className="mt-1 text-sm text-slate-600">
+                  Compra, apetite e chamadas.
+                </p>
+              </div>
             </div>
-          </div>
-          <div className="flex items-start gap-3">
-            <Timer className="mt-1 text-red-600" aria-hidden="true" />
-            <div className="w-full">
-              <h2 className="font-bold text-slate-950">Vermelho para risco</h2>
-              <p className="mt-1 text-sm text-slate-600">Estoque critico e indisponivel.</p>
-              <div className="mt-3">
-                <ProgressBar value={18} tone="danger" />
+            <div className="flex items-start gap-3">
+              <Timer className="mt-1 text-red-600" aria-hidden="true" />
+              <div className="w-full">
+                <h2 className="font-bold text-slate-950">
+                  Vermelho para risco
+                </h2>
+                <p className="mt-1 text-sm text-slate-600">
+                  Estoque critico e indisponivel.
+                </p>
+                <div className="mt-3">
+                  <ProgressBar value={18} tone="danger" />
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </Panel>
+        </Panel>
+      ) : null}
     </section>
   )
 }

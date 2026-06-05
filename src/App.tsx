@@ -377,6 +377,8 @@ export default function App() {
         activeStock={activeStock}
         queuedOrders={queue.length}
         wasteReduction={-28}
+        showMetrics={false}
+        showColorGuide={false}
       />
       <CustomerOrdering
         products={activeProducts}
@@ -412,6 +414,7 @@ export default function App() {
         activeStock={activeStock}
         queuedOrders={queue.length}
         wasteReduction={-28}
+        showColorGuide={false}
       />
       <ManagementWorkspace
         products={products}

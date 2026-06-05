@@ -20,6 +20,8 @@ test('student registers and orders from the root page', async ({ page }) => {
   await expect(page).toHaveURL(/\/$/)
   await expect(page.getByText('/aluno')).toHaveCount(0)
   await expect(page.getByText('/admin')).toHaveCount(0)
+  await expect(page.getByText(/Vendas do dia/i)).toHaveCount(0)
+  await expect(page.getByText(/Verde para sustentabilidade/i)).toHaveCount(0)
   await expect(page.getByText(/Pedido criado com codigo/i)).toBeVisible()
 })
 
@@ -32,6 +34,8 @@ test('admin login opens the admin page', async ({ page }) => {
 
   await expect(page).toHaveURL(/\/admin$/)
   await expect(page.getByText(/Fila FIFO/i)).toBeVisible()
+  await expect(page.getByText(/Vendas do dia/i)).toBeVisible()
+  await expect(page.getByText(/Verde para sustentabilidade/i)).toHaveCount(0)
   await expect(page.getByText('/aluno')).toHaveCount(0)
   await expect(page.getByText('/admin')).toHaveCount(1)
 })

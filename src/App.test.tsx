@@ -32,6 +32,8 @@ describe('Digital Flavor app', () => {
     ).toBeInTheDocument()
     expect(screen.queryByText('/aluno')).not.toBeInTheDocument()
     expect(screen.queryByText('/admin')).not.toBeInTheDocument()
+    expect(screen.queryByText(/Vendas do dia/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Verde para sustentabilidade/i)).not.toBeInTheDocument()
 
     await user.click(screen.getAllByRole('button', { name: /Adicionar/i })[0])
     expect(screen.getByText(/Carrinho do aluno/i)).toBeInTheDocument()
@@ -58,6 +60,8 @@ describe('Digital Flavor app', () => {
     await user.click(screen.getByRole('button', { name: /^Entrar$/i }))
 
     expect(screen.getByText(/Fila FIFO/i)).toBeInTheDocument()
+    expect(screen.getByText(/Vendas do dia/i)).toBeInTheDocument()
+    expect(screen.queryByText(/Verde para sustentabilidade/i)).not.toBeInTheDocument()
     expect(screen.queryByText('/aluno')).not.toBeInTheDocument()
     expect(screen.getAllByText('/admin')).toHaveLength(1)
   })
