@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import {
   ChevronDown,
   CreditCard,
@@ -83,18 +84,30 @@ export function AppHeader({
                     <p className="text-sm font-bold text-slate-950">{userName}</p>
                     <p className="text-xs text-slate-500">Perfil do cliente</p>
                   </div>
-                  <button className="mt-2 flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                  <Link
+                    className="mt-2 flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                    to="/configuracoes"
+                    onClick={() => setProfileOpen(false)}
+                  >
                     <Settings size={16} aria-hidden="true" />
                     Configuracoes
-                  </button>
-                  <button className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                  </Link>
+                  <Link
+                    className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                    to="/perfil"
+                    onClick={() => setProfileOpen(false)}
+                  >
                     <User size={16} aria-hidden="true" />
                     Dados do perfil
-                  </button>
-                  <button className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                  </Link>
+                  <Link
+                    className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                    to="/pagamentos"
+                    onClick={() => setProfileOpen(false)}
+                  >
                     <CreditCard size={16} aria-hidden="true" />
                     Metodos de pagamento
-                  </button>
+                  </Link>
                   <button
                     type="button"
                     className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm font-semibold text-red-700 hover:bg-red-50"

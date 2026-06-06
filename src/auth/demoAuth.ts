@@ -6,6 +6,29 @@ export interface AuthSession {
   email: string
 }
 
+export interface CustomerProfileDetails {
+  name: string
+  email: string
+  phone: string
+  classroom: string
+  shift: 'manha' | 'tarde' | 'noite'
+}
+
+export interface CustomerPreferences {
+  quickPickup: boolean
+  orderUpdates: boolean
+  receiptEmail: boolean
+  defaultPickupTime: string
+}
+
+export interface SavedPaymentMethod {
+  id: string
+  type: 'pix' | 'card' | 'cash'
+  label: string
+  detail: string
+  preferred: boolean
+}
+
 export interface StudentAccount {
   name: string
   email: string
@@ -19,6 +42,9 @@ export const adminCredential = {
 
 const studentsKey = 'digital-flavor-students'
 const sessionKey = 'digital-flavor-session'
+const profileKeyPrefix = 'digital-flavor-profile'
+const preferencesKeyPrefix = 'digital-flavor-preferences'
+const paymentMethodsKeyPrefix = 'digital-flavor-payment-methods'
 
 function canUseStorage() {
   return typeof window !== 'undefined' && Boolean(window.localStorage)
@@ -26,6 +52,29 @@ function canUseStorage() {
 
 function normalizeEmail(email: string) {
   return email.trim().toLowerCase()
+}
+
+function customerKey(prefix: string, email: string) {
+  return `${prefix}:${normalizeEmail(email)}`
+}
+
+function readJson<T>(key: string, fallback: T) {
+  if (!canUseStorage()) {
+    return fallback
+  }
+
+  try {
+    const raw = window.localStorage.getItem(key)
+    return raw ? (JSON.parse(raw) as T) : fallback
+  } catch {
+    return fallback
+  }
+}
+
+function writeJson<T>(key: string, value: T) {
+  if (canUseStorage()) {
+    window.localStorage.setItem(key, JSON.stringify(value))
+  }
 }
 
 export function readStudentAccounts(): StudentAccount[] {
@@ -119,3 +168,92 @@ export function clearSession() {
   }
 }
 
+export function defaultCustomerProfile(session?: AuthSession): CustomerProfileDetails {
+  return {
+    name: session?.name ?? '',
+    email: session?.email ?? '',
+    phone: '',
+    classroom: '',
+    shift: 'manha'
+  }
+}
+
+export function readCustomerProfile(session?: AuthSession) {
+  if (!session) {
+    return defaultCustomerProfile()
+  }
+
+  return readJson(
+    customerKey(profileKeyPrefix, session.email),
+    defaultCustomerProfile(session)
+  )
+}
+
+export function saveCustomerProfile(profile: CustomerProfileDetails) {
+  writeJson(customerKey(profileKeyPrefix, profile.email), profile)
+}
+
+export function defaultCustomerPreferences(): CustomerPreferences {
+  return {
+    quickPickup: true,
+    orderUpdates: true,
+    receiptEmail: true,
+    defaultPickupTime: '10:30'
+  }
+}
+
+export function readCustomerPreferences(session?: AuthSession) {
+  if (!session) {
+    return defaultCustomerPreferences()
+  }
+
+  return readJson(
+    customerKey(preferencesKeyPrefix, session.email),
+    defaultCustomerPreferences()
+  )
+}
+
+export function saveCustomerPreferences(session: AuthSession, preferences: CustomerPreferences) {
+  writeJson(customerKey(preferencesKeyPrefix, session.email), preferences)
+}
+
+export function defaultPaymentMethods(): SavedPaymentMethod[] {
+  return [
+    {
+      id: 'pix',
+      type: 'pix',
+      label: 'PIX',
+      detail: 'Pagamento instantaneo na retirada',
+      preferred: true
+    },
+    {
+      id: 'card',
+      type: 'card',
+      label: 'Cartao',
+      detail: 'Debito ou credito no balcao',
+      preferred: false
+    },
+    {
+      id: 'cash',
+      type: 'cash',
+      label: 'Dinheiro',
+      detail: 'Pagamento em especie na retirada',
+      preferred: false
+    }
+  ]
+}
+
+export function readPaymentMethods(session?: AuthSession) {
+  if (!session) {
+    return defaultPaymentMethods()
+  }
+
+  return readJson(
+    customerKey(paymentMethodsKeyPrefix, session.email),
+    defaultPaymentMethods()
+  )
+}
+
+export function savePaymentMethods(session: AuthSession, methods: SavedPaymentMethod[]) {
+  writeJson(customerKey(paymentMethodsKeyPrefix, session.email), methods)
+}

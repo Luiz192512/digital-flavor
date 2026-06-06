@@ -32,6 +32,23 @@ export async function signUpCustomer({
   })
 }
 
+export async function signInWithGoogle() {
+  if (!supabase) {
+    throw new Error('Supabase is not configured')
+  }
+
+  return supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${window.location.origin}/auth/callback`,
+      queryParams: {
+        access_type: 'offline',
+        prompt: 'consent'
+      }
+    }
+  })
+}
+
 export async function signOut() {
   if (!supabase) {
     return

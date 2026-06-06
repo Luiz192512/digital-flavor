@@ -1,13 +1,25 @@
-import { useMemo, useState } from 'react'
-import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
 import {
   authenticateUser,
   clearSession,
+  defaultCustomerPreferences,
+  defaultCustomerProfile,
+  defaultPaymentMethods,
+  readCustomerPreferences,
+  readCustomerProfile,
+  readPaymentMethods,
   readSession,
   registerStudentAccount,
+  saveCustomerPreferences,
+  saveCustomerProfile,
+  savePaymentMethods,
   saveSession,
-  type AuthSession
+  type AuthSession,
+  type CustomerPreferences,
+  type CustomerProfileDetails,
+  type SavedPaymentMethod
 } from './auth/demoAuth'
 import { seedInventory, seedOrders, seedProducts } from './data/seed'
 import {
@@ -20,13 +32,21 @@ import {
   type Order,
   type PaymentMethod
 } from './domain'
+import {
+  AccountSettingsPage,
+  PaymentMethodsPage,
+  ProfileDetailsPage
+} from './features/account/AccountPages'
 import { CustomerOrdering } from './features/customer/CustomerOrdering'
-import { LoginPage, RegisterPage } from './features/auth/AuthPages'
+import { LoginPage, OAuthCallbackPage, RegisterPage } from './features/auth/AuthPages'
 import { AppHeader } from './features/layout/AppHeader'
 import {
   ManagementWorkspace,
   type ProductAdjustmentDraft
 } from './features/management/ManagementWorkspace'
+import { saveCustomerExperience } from './lib/edgeFunctions'
+import { signInWithGoogle, signOut as signOutFromSupabase } from './lib/auth'
+import { isSupabaseConfigured, supabase } from './lib/supabase'
 
 function cloneProduct(product: Product) {
   return new Product({
@@ -81,8 +101,27 @@ function parsePriceCents(value: string) {
   return Math.round(price * 100)
 }
 
+function sessionFromSupabaseUser(user: {
+  email?: string
+  user_metadata?: Record<string, unknown>
+  app_metadata?: Record<string, unknown>
+}) {
+  const email = user.email ?? ''
+  const metadataName = user.user_metadata?.full_name ?? user.user_metadata?.name
+  const role = user.app_metadata?.role === 'admin' ? 'admin' : 'student'
+
+  return {
+    role,
+    name: typeof metadataName === 'string' && metadataName.trim()
+      ? metadataName
+      : email.split('@')[0] || 'Cliente Digital Flavor',
+    email
+  } satisfies AuthSession
+}
+
 export default function App() {
   const navigate = useNavigate()
+  const location = useLocation()
   const [session, setSession] = useState<AuthSession | undefined>(() => readSession())
   const [loginError, setLoginError] = useState<string>()
   const [registerError, setRegisterError] = useState<string>()
@@ -97,6 +136,15 @@ export default function App() {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('pix')
   const [latestOrderId, setLatestOrderId] = useState<string>()
   const [errorMessage, setErrorMessage] = useState<string>()
+  const [customerProfile, setCustomerProfile] = useState<CustomerProfileDetails>(() =>
+    defaultCustomerProfile(session)
+  )
+  const [customerPreferences, setCustomerPreferences] = useState<CustomerPreferences>(() =>
+    defaultCustomerPreferences()
+  )
+  const [paymentMethods, setPaymentMethods] = useState<SavedPaymentMethod[]>(() =>
+    defaultPaymentMethods()
+  )
   const [productAdjustments, setProductAdjustments] = useState<Record<string, ProductAdjustmentDraft>>({})
   const [productDraft, setProductDraft] = useState<{
     name: string
@@ -107,6 +155,61 @@ export default function App() {
     price: '',
     category: 'lanche'
   })
+
+  useEffect(() => {
+    if (!supabase) {
+      return undefined
+    }
+
+    let active = true
+
+    function applySupabaseSession(userSession: AuthSession) {
+      saveSession(userSession)
+      setSession(userSession)
+
+      if (location.pathname === '/login' || location.pathname === '/cadastro' || location.pathname === '/auth/callback') {
+        navigate(userSession.role === 'admin' ? '/admin' : '/', { replace: true })
+      }
+    }
+
+    supabase.auth.getSession().then(({ data }) => {
+      if (active && data.session?.user) {
+        applySupabaseSession(sessionFromSupabaseUser(data.session.user))
+      }
+    })
+
+    const { data } = supabase.auth.onAuthStateChange((_event, authSession) => {
+      if (authSession?.user) {
+        applySupabaseSession(sessionFromSupabaseUser(authSession.user))
+      }
+    })
+
+    return () => {
+      active = false
+      data.subscription.unsubscribe()
+    }
+  }, [location.pathname, navigate])
+
+  useEffect(() => {
+    if (!session || session.role !== 'student') {
+      setCustomerProfile(defaultCustomerProfile(session))
+      setCustomerPreferences(defaultCustomerPreferences())
+      setPaymentMethods(defaultPaymentMethods())
+      return
+    }
+
+    const nextProfile = readCustomerProfile(session)
+    const nextPreferences = readCustomerPreferences(session)
+    const nextPaymentMethods = readPaymentMethods(session)
+
+    setCustomerProfile(nextProfile)
+    setCustomerPreferences(nextPreferences)
+    setPaymentMethods(nextPaymentMethods)
+    setPickupTime(nextPreferences.defaultPickupTime)
+    setPaymentMethod(
+      (nextPaymentMethods.find((method) => method.preferred)?.type ?? 'pix') as PaymentMethod
+    )
+  }, [session])
 
   const activeProducts = useMemo(() => products.filter((product) => product.active), [products])
   const cartItems = cart.listItems()
@@ -194,9 +297,31 @@ export default function App() {
       return
     }
 
+    if (result.role === 'admin') {
+      void signOutFromSupabase()
+    }
+
     saveSession(result)
     setSession(result)
     navigate(result.role === 'admin' ? '/admin' : '/', { replace: true })
+  }
+
+  async function handleGoogleLogin() {
+    setLoginError(undefined)
+    setRegisterError(undefined)
+
+    if (!isSupabaseConfigured) {
+      setLoginError('Login Google depende das chaves do Supabase no ambiente.')
+      setRegisterError('Login Google depende das chaves do Supabase no ambiente.')
+      return
+    }
+
+    const { error } = await signInWithGoogle()
+
+    if (error) {
+      setLoginError(error.message)
+      setRegisterError(error.message)
+    }
   }
 
   function handleRegister(name: string, email: string, password: string) {
@@ -225,11 +350,68 @@ export default function App() {
   }
 
   function handleLogout() {
+    void signOutFromSupabase()
     clearSession()
     setSession(undefined)
     setCart(new Cart())
     setLatestOrderId(undefined)
     navigate('/login', { replace: true })
+  }
+
+  function syncCustomerData(
+    profile = customerProfile,
+    preferences = customerPreferences,
+    methods = paymentMethods
+  ) {
+    void saveCustomerExperience({
+      profile,
+      preferences,
+      paymentMethods: methods
+    })
+  }
+
+  function handleProfileSave(profile: CustomerProfileDetails) {
+    saveCustomerProfile(profile)
+    setCustomerProfile(profile)
+
+    if (session) {
+      const nextSession = {
+        ...session,
+        name: profile.name
+      }
+
+      saveSession(nextSession)
+      setSession(nextSession)
+      syncCustomerData(profile)
+    }
+  }
+
+  function handlePreferencesSave(preferences: CustomerPreferences) {
+    if (!session) {
+      return
+    }
+
+    saveCustomerPreferences(session, preferences)
+    setCustomerPreferences(preferences)
+    setPickupTime(preferences.defaultPickupTime)
+    syncCustomerData(customerProfile, preferences)
+  }
+
+  function handlePaymentMethodsSave(methods: SavedPaymentMethod[]) {
+    if (!session) {
+      return
+    }
+
+    savePaymentMethods(session, methods)
+    setPaymentMethods(methods)
+
+    const preferred = methods.find((method) => method.preferred)
+
+    if (preferred) {
+      setPaymentMethod(preferred.type)
+    }
+
+    syncCustomerData(customerProfile, customerPreferences, methods)
   }
 
   function pushHistory(label: string, undo: () => void) {
@@ -582,6 +764,25 @@ export default function App() {
     <Navigate to={session?.role === 'student' ? '/' : '/login'} replace />
   )
 
+  function studentAccountPage(element: ReactNode) {
+    if (session?.role !== 'student') {
+      return <Navigate to={session?.role === 'admin' ? '/admin' : '/login'} replace />
+    }
+
+    return (
+      <main className="min-h-screen bg-slate-50 text-slate-950">
+        <AppHeader
+          role="student"
+          cartItems={cart.totalItems}
+          queueLabel={customerOrderStatus.headerLabel}
+          userName={session.name}
+          onLogout={handleLogout}
+        />
+        {element}
+      </main>
+    )
+  }
+
   return (
     <Routes>
       <Route path="/" element={studentPage} />
@@ -591,7 +792,11 @@ export default function App() {
           session ? (
             <Navigate to={session.role === 'admin' ? '/admin' : '/'} replace />
           ) : (
-            <LoginPage errorMessage={loginError} onLogin={handleLogin} />
+            <LoginPage
+              errorMessage={loginError}
+              onLogin={handleLogin}
+              onGoogleLogin={handleGoogleLogin}
+            />
           )
         }
       />
@@ -601,9 +806,41 @@ export default function App() {
           session ? (
             <Navigate to={session.role === 'admin' ? '/admin' : '/'} replace />
           ) : (
-            <RegisterPage errorMessage={registerError} onRegister={handleRegister} />
+            <RegisterPage
+              errorMessage={registerError}
+              onRegister={handleRegister}
+              onGoogleLogin={handleGoogleLogin}
+            />
           )
         }
+      />
+      <Route path="/auth/callback" element={<OAuthCallbackPage />} />
+      <Route
+        path="/configuracoes"
+        element={studentAccountPage(
+          <AccountSettingsPage
+            preferences={customerPreferences}
+            onPreferencesSave={handlePreferencesSave}
+          />
+        )}
+      />
+      <Route
+        path="/perfil"
+        element={studentAccountPage(
+          <ProfileDetailsPage
+            profile={customerProfile}
+            onProfileSave={handleProfileSave}
+          />
+        )}
+      />
+      <Route
+        path="/pagamentos"
+        element={studentAccountPage(
+          <PaymentMethodsPage
+            paymentMethods={paymentMethods}
+            onPaymentMethodsSave={handlePaymentMethodsSave}
+          />
+        )}
       />
       <Route path="/admin" element={adminPage} />
       <Route path="*" element={<Navigate to={session?.role === 'admin' ? '/admin' : '/'} replace />} />

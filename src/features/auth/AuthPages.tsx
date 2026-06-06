@@ -1,6 +1,6 @@
 import type { FormEvent, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { LockKeyhole, UserPlus, Utensils } from 'lucide-react'
+import { Chrome, Loader2, LockKeyhole, UserPlus, Utensils } from 'lucide-react'
 
 import { Button, Panel, StatusBadge } from '../../components/ui'
 import { adminCredential } from '../../auth/demoAuth'
@@ -8,14 +8,16 @@ import { adminCredential } from '../../auth/demoAuth'
 interface LoginPageProps {
   errorMessage?: string
   onLogin: (email: string, password: string) => void
+  onGoogleLogin: () => void
 }
 
 interface RegisterPageProps {
   errorMessage?: string
   onRegister: (name: string, email: string, password: string) => void
+  onGoogleLogin: () => void
 }
 
-export function LoginPage({ errorMessage, onLogin }: LoginPageProps) {
+export function LoginPage({ errorMessage, onLogin, onGoogleLogin }: LoginPageProps) {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
@@ -27,6 +29,17 @@ export function LoginPage({ errorMessage, onLogin }: LoginPageProps) {
       title="Entrar no Digital Flavor"
       description="Acesse sua conta para comprar no intervalo ou administrar a cantina."
     >
+      <Button type="button" variant="quiet" className="mb-4 w-full" onClick={onGoogleLogin}>
+        <Chrome size={18} aria-hidden="true" />
+        Entrar com Google
+      </Button>
+
+      <div className="mb-4 flex items-center gap-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
+        <span className="h-px flex-1 bg-slate-200" />
+        ou entre com e-mail
+        <span className="h-px flex-1 bg-slate-200" />
+      </div>
+
       <form className="grid gap-4" onSubmit={handleSubmit}>
         <label className="grid gap-2 text-sm font-semibold text-slate-700">
           E-mail
@@ -82,7 +95,7 @@ export function LoginPage({ errorMessage, onLogin }: LoginPageProps) {
   )
 }
 
-export function RegisterPage({ errorMessage, onRegister }: RegisterPageProps) {
+export function RegisterPage({ errorMessage, onRegister, onGoogleLogin }: RegisterPageProps) {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
@@ -98,6 +111,17 @@ export function RegisterPage({ errorMessage, onRegister }: RegisterPageProps) {
       title="Criar conta"
       description="Cadastre-se para montar pedidos, escolher horario de retirada e acompanhar o atendimento."
     >
+      <Button type="button" variant="quiet" className="mb-4 w-full" onClick={onGoogleLogin}>
+        <Chrome size={18} aria-hidden="true" />
+        Cadastrar com Google
+      </Button>
+
+      <div className="mb-4 flex items-center gap-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
+        <span className="h-px flex-1 bg-slate-200" />
+        ou preencha seus dados
+        <span className="h-px flex-1 bg-slate-200" />
+      </div>
+
       <form className="grid gap-4" onSubmit={handleSubmit}>
         <label className="grid gap-2 text-sm font-semibold text-slate-700">
           Nome completo
@@ -151,6 +175,20 @@ export function RegisterPage({ errorMessage, onRegister }: RegisterPageProps) {
           Voltar para login
         </Link>
       </p>
+    </AuthLayout>
+  )
+}
+
+export function OAuthCallbackPage() {
+  return (
+    <AuthLayout
+      title="Conectando sua conta"
+      description="Estamos finalizando seu acesso para abrir o Digital Flavor."
+    >
+      <div className="flex items-center gap-3 rounded-lg border border-blue-100 bg-blue-50 p-4 text-sm font-semibold text-blue-950">
+        <Loader2 className="animate-spin text-blue-700" size={20} aria-hidden="true" />
+        Aguarde um instante.
+      </div>
     </AuthLayout>
   )
 }

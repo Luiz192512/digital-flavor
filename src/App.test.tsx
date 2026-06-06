@@ -128,4 +128,37 @@ describe('Digital Flavor app', () => {
     await user.click(screen.getByRole('button', { name: /Disponivel/i }))
     expect(screen.getAllByText(/No cardapio/i).length).toBeGreaterThanOrEqual(1)
   }, 10000)
+
+  it('opens customer account pages from the profile menu', async () => {
+    const user = userEvent.setup()
+    render(
+      <MemoryRouter initialEntries={['/cadastro']}>
+        <App />
+      </MemoryRouter>
+    )
+
+    await user.type(screen.getByLabelText(/Nome completo/i), 'Aluno Conta')
+    await user.type(screen.getByLabelText(/E-mail/i), 'conta@escola.com')
+    await user.type(screen.getByLabelText(/Senha/i), 'senha123')
+    await user.click(screen.getByRole('button', { name: /Cadastrar e entrar/i }))
+
+    await user.click(screen.getByRole('button', { name: /Aluno/i }))
+    await user.click(screen.getByRole('link', { name: /Configuracoes/i }))
+    expect(screen.getByRole('heading', { name: /Preferencias da conta/i })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: /Salvar configuracoes/i }))
+
+    await user.click(screen.getByRole('button', { name: /Aluno/i }))
+    await user.click(screen.getByRole('link', { name: /Dados do perfil/i }))
+    expect(screen.getByRole('heading', { name: /Informacoes do cliente/i })).toBeInTheDocument()
+    await user.clear(screen.getByLabelText(/Telefone/i))
+    await user.type(screen.getByLabelText(/Telefone/i), '(11) 99999-0000')
+    await user.click(screen.getByRole('button', { name: /Salvar perfil/i }))
+
+    await user.click(screen.getByRole('button', { name: /Aluno/i }))
+    await user.click(screen.getByRole('link', { name: /Metodos de pagamento/i }))
+    expect(screen.getByRole('heading', { name: /Como voce prefere pagar/i })).toBeInTheDocument()
+    await user.type(screen.getByLabelText(/Nova chave PIX/i), 'conta@escola.com')
+    await user.click(screen.getByRole('button', { name: /Adicionar PIX/i }))
+    expect(screen.getByText(/PIX salvo/i)).toBeInTheDocument()
+  })
 })

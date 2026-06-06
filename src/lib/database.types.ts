@@ -194,7 +194,72 @@ export interface Database {
         }
         Update: never
       }
+      customer_preferences: {
+        Row: {
+          profile_id: string
+          phone: string
+          classroom: string
+          shift: 'manha' | 'tarde' | 'noite'
+          quick_pickup: boolean
+          order_updates: boolean
+          receipt_email: boolean
+          default_pickup_time: string
+          updated_at: string
+        }
+        Insert: {
+          profile_id: string
+          phone?: string
+          classroom?: string
+          shift?: 'manha' | 'tarde' | 'noite'
+          quick_pickup?: boolean
+          order_updates?: boolean
+          receipt_email?: boolean
+          default_pickup_time?: string
+          updated_at?: string
+        }
+        Update: {
+          phone?: string
+          classroom?: string
+          shift?: 'manha' | 'tarde' | 'noite'
+          quick_pickup?: boolean
+          order_updates?: boolean
+          receipt_email?: boolean
+          default_pickup_time?: string
+          updated_at?: string
+        }
+      }
+      customer_payment_methods: {
+        Row: {
+          id: string
+          profile_id: string
+          method: 'pix' | 'card' | 'cash'
+          label: string
+          detail: string
+          preferred: boolean
+          active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          profile_id: string
+          method: 'pix' | 'card' | 'cash'
+          label: string
+          detail: string
+          preferred?: boolean
+          active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          method?: 'pix' | 'card' | 'cash'
+          label?: string
+          detail?: string
+          preferred?: boolean
+          active?: boolean
+          updated_at?: string
+        }
+      }
     }
   }
 }
-
