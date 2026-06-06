@@ -25,7 +25,7 @@ export function LoginPage({ errorMessage, onLogin }: LoginPageProps) {
   return (
     <AuthLayout
       title="Entrar no Digital Flavor"
-      description="Admins entram com credenciais especificas e alunos entram com a conta criada no cadastro."
+      description="Acesse sua conta para comprar no intervalo ou administrar a cantina."
     >
       <form className="grid gap-4" onSubmit={handleSubmit}>
         <label className="grid gap-2 text-sm font-semibold text-slate-700">
@@ -55,7 +55,7 @@ export function LoginPage({ errorMessage, onLogin }: LoginPageProps) {
           <div className="rounded-md bg-red-50 px-3 py-2 text-sm font-semibold text-red-700">
             {errorMessage}{' '}
             <Link className="underline" to="/cadastro">
-              Cadastrar aluno
+              Criar conta
             </Link>
           </div>
         ) : null}
@@ -73,9 +73,9 @@ export function LoginPage({ errorMessage, onLogin }: LoginPageProps) {
       </div>
 
       <p className="mt-5 text-center text-sm text-slate-600">
-        Aluno ainda nao possui cadastro?{' '}
+        Ainda nao possui cadastro?{' '}
         <Link className="font-bold text-orange-600 underline" to="/cadastro">
-          Criar usuario
+          Criar conta
         </Link>
       </p>
     </AuthLayout>
@@ -95,12 +95,12 @@ export function RegisterPage({ errorMessage, onRegister }: RegisterPageProps) {
 
   return (
     <AuthLayout
-      title="Cadastro do aluno"
-      description="Crie o usuario do aluno para acessar o cardapio, montar pedido e acompanhar retirada."
+      title="Criar conta"
+      description="Cadastre-se para montar pedidos, escolher horario de retirada e acompanhar o atendimento."
     >
       <form className="grid gap-4" onSubmit={handleSubmit}>
         <label className="grid gap-2 text-sm font-semibold text-slate-700">
-          Nome do aluno
+          Nome completo
           <input
             className="min-h-11 rounded-md border border-slate-200 px-3 outline-none focus:border-blue-500"
             name="name"
@@ -176,14 +176,14 @@ function AuthLayout({
               Digital Flavor
             </h1>
             <p className="mt-4 max-w-md text-lg leading-8 text-green-50">
-              Login separado para alunos e administradores, com rotas protegidas e
-              experiencia direcionada para cada perfil.
+              Pedido antecipado para retirar no intervalo, com controle simples de
+              produtos, precos e atendimento da cantina.
             </p>
           </div>
           <div className="grid gap-3 text-sm text-green-50">
-            <p>Verde: sustentabilidade e estoque disponivel.</p>
-            <p>Azul: gestao, confianca e operacao.</p>
-            <p>Laranja: compra, acao e fluxo do pedido.</p>
+            <p>Compra rapida para quem quer evitar espera.</p>
+            <p>Painel de produtos e pedidos para a equipe.</p>
+            <p>Status claro do pedido ate a retirada.</p>
           </div>
         </section>
 
