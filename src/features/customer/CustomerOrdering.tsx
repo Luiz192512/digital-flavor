@@ -1,8 +1,16 @@
 import { Clock, Minus, Plus, ShoppingBag, WalletCards } from 'lucide-react'
 
-import { Button, Panel, ProgressBar, StatusBadge } from '../../components/ui'
+import { Button, Panel, StatusBadge } from '../../components/ui'
 import type { CartItemSnapshot, InventoryItem, PaymentMethod, Product } from '../../domain'
+import type { StatusTone } from '../../theme/colors'
 import { formatCurrency } from '../../utils/format'
+
+interface CustomerOrderStatus {
+  title: string
+  detail: string
+  code?: string
+  tone: StatusTone
+}
 
 interface CustomerOrderingProps {
   products: Product[]
@@ -11,7 +19,7 @@ interface CustomerOrderingProps {
   cartTotalCents: number
   pickupTime: string
   paymentMethod: PaymentMethod
-  latestOrderCode?: string
+  orderStatus: CustomerOrderStatus
   errorMessage?: string
   onPickupTimeChange: (value: string) => void
   onPaymentMethodChange: (value: PaymentMethod) => void
@@ -34,7 +42,7 @@ export function CustomerOrdering({
   cartTotalCents,
   pickupTime,
   paymentMethod,
-  latestOrderCode,
+  orderStatus,
   errorMessage,
   onPickupTimeChange,
   onPaymentMethodChange,
@@ -54,15 +62,14 @@ export function CustomerOrdering({
                 <p className="text-sm font-semibold uppercase tracking-wide text-orange-600">
                   Pedido antecipado
                 </p>
-                <h2 className="mt-1 text-2xl font-bold tracking-tight text-slate-950">
-                  Cardapio inteligente para o intervalo
-                </h2>
+                <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-950">
+                  Cardapio para o intervalo
+                </h1>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-                  Cada item considera estoque, tempo de preparo e impacto no desperdicio.
-                  O aluno compra antes e a cantina prepara pela fila FIFO.
+                  Escolha seus itens, confirme o pagamento e retire no horario combinado.
                 </p>
               </div>
-              <StatusBadge tone="info">Tempo alvo: ate 3s</StatusBadge>
+              <StatusBadge tone="info">Retirada organizada</StatusBadge>
             </div>
           </div>
 
@@ -79,13 +86,11 @@ export function CustomerOrdering({
                     : stockStatus === 'critical'
                       ? 'danger'
                       : 'danger'
-              const progress =
-                stock && stock.quantity > 0 ? (stock.availableQuantity / stock.quantity) * 100 : 0
 
               return (
                 <article
                   key={product.id}
-                  className="grid min-h-[210px] gap-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:border-orange-200 hover:shadow-md sm:grid-cols-[92px_1fr]"
+                  className="grid min-h-[200px] gap-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:border-orange-200 hover:shadow-md sm:grid-cols-[92px_1fr]"
                 >
                   <div className="flex h-24 w-full items-center justify-center rounded-lg bg-gradient-to-br from-green-50 via-white to-orange-50 text-4xl sm:h-full">
                     {product.category === 'bebida'
@@ -102,30 +107,28 @@ export function CustomerOrdering({
                         <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                           {categoryLabel[product.category]}
                         </p>
-                        <h3 className="mt-1 text-lg font-bold text-slate-950">{product.name}</h3>
+                        <h2 className="mt-1 text-lg font-bold text-slate-950">{product.name}</h2>
                       </div>
                       <p className="shrink-0 text-lg font-bold text-slate-950">
                         {product.priceLabel}
                       </p>
                     </div>
                     <p className="mt-2 text-sm leading-6 text-slate-600">{product.description}</p>
-                    <div className="mt-3 grid gap-2">
-                      <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
-                        <span>{available} disponiveis</span>
-                        <span>{product.sustainabilityScore}% ODS</span>
+                    <div className="mt-auto flex items-center justify-between gap-3 pt-4">
+                      <div>
+                        <StatusBadge tone={stockTone}>
+                          {stockStatus === 'available'
+                            ? 'Disponivel'
+                            : stockStatus === 'low'
+                              ? 'Poucas unidades'
+                              : stockStatus === 'critical'
+                                ? 'Quase esgotado'
+                                : 'Indisponivel'}
+                        </StatusBadge>
+                        <p className="mt-2 text-xs font-semibold text-slate-500">
+                          {available} unidades disponiveis
+                        </p>
                       </div>
-                      <ProgressBar value={progress} tone={stockTone} />
-                    </div>
-                    <div className="mt-auto flex items-center justify-between pt-4">
-                      <StatusBadge tone={stockTone}>
-                        {stockStatus === 'available'
-                          ? 'Disponivel'
-                          : stockStatus === 'low'
-                            ? 'Estoque baixo'
-                            : stockStatus === 'critical'
-                              ? 'Critico'
-                              : 'Indisponivel'}
-                      </StatusBadge>
                       <Button
                         type="button"
                         disabled={available === 0 || !product.active}
@@ -150,15 +153,15 @@ export function CustomerOrdering({
               <ShoppingBag size={20} aria-hidden="true" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-950">Carrinho do aluno</h2>
-              <p className="text-sm text-slate-500">Lista ligada ao estoque real</p>
+              <h2 className="text-lg font-bold text-slate-950">Carrinho</h2>
+              <p className="text-sm text-slate-500">Resumo do pedido</p>
             </div>
           </div>
 
           <div className="mt-5 space-y-3">
             {cartItems.length === 0 ? (
               <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-5 text-center text-sm text-slate-500">
-                Escolha itens do cardapio para montar o pedido antecipado.
+                Escolha itens do cardapio para montar seu pedido.
               </div>
             ) : (
               cartItems.map((item) => (
@@ -238,26 +241,24 @@ export function CustomerOrdering({
         </Panel>
 
         <Panel className="p-5">
-          <div className="flex items-center gap-3">
-            <Clock className="text-blue-600" aria-hidden="true" />
-            <div>
-              <h2 className="font-bold text-slate-950">Status do aluno</h2>
-              <p className="text-sm text-slate-500">Retirada sem fila longa</p>
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <Clock className="text-blue-600" aria-hidden="true" />
+              <div>
+                <h2 className="font-bold text-slate-950">Meu pedido</h2>
+                <p className="text-sm text-slate-500">Acompanhamento de retirada</p>
+              </div>
             </div>
+            <StatusBadge tone={orderStatus.tone}>{orderStatus.title}</StatusBadge>
           </div>
           <div className="mt-4 rounded-lg bg-blue-50 p-4 text-sm text-blue-900">
-            {latestOrderCode ? (
-              <p>
-                Pedido criado com codigo <strong>{latestOrderCode}</strong>. Acompanhe na
-                fila de preparo da gestao.
-              </p>
-            ) : (
-              <p>Pedidos confirmados entram automaticamente na fila FIFO da cantina.</p>
-            )}
+            <p>{orderStatus.detail}</p>
+            {orderStatus.code ? (
+              <p className="mt-2 font-semibold">Codigo de retirada: {orderStatus.code}</p>
+            ) : null}
           </div>
         </Panel>
       </aside>
     </section>
   )
 }
-

@@ -13,7 +13,7 @@ export const seedProducts = [
   new Product({
     id: 'suco-integral',
     name: 'Suco integral',
-    description: 'Suco de laranja sem acucar, com lote controlado por validade.',
+    description: 'Suco de laranja sem acucar, gelado e pronto para o intervalo.',
     category: 'bebida',
     priceCents: 690,
     preparationMinutes: 2,
@@ -22,7 +22,7 @@ export const seedProducts = [
   new Product({
     id: 'salada-frutas',
     name: 'Salada de frutas',
-    description: 'Frutas do dia priorizando itens proximos do vencimento seguro.',
+    description: 'Frutas selecionadas do dia em porcao individual.',
     category: 'fruta',
     priceCents: 890,
     preparationMinutes: 4,
@@ -30,7 +30,7 @@ export const seedProducts = [
   }),
   new Product({
     id: 'combo-responsavel',
-    name: 'Combo responsavel',
+    name: 'Combo intervalo',
     description: 'Sanduiche, fruta e suco com desconto para pedido antecipado.',
     category: 'combo',
     priceCents: 2190,
@@ -40,7 +40,7 @@ export const seedProducts = [
   new Product({
     id: 'pao-queijo',
     name: 'Pao de queijo',
-    description: 'Porcao assada em lotes pequenos para reduzir sobra no intervalo.',
+    description: 'Porcao assada e pronta para retirada no intervalo.',
     category: 'lanche',
     priceCents: 590,
     preparationMinutes: 6,
@@ -103,7 +103,7 @@ export const seedOrders = [
     items: [
       {
         productId: 'combo-responsavel',
-        name: 'Combo responsavel',
+        name: 'Combo intervalo',
         unitPriceCents: 2190,
         quantity: 1,
         totalCents: 2190
@@ -164,4 +164,3 @@ export const seedOrders = [
     ]
   })
 ]
-

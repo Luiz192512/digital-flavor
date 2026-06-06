@@ -23,11 +23,10 @@ import {
 import { CustomerOrdering } from './features/customer/CustomerOrdering'
 import { LoginPage, RegisterPage } from './features/auth/AuthPages'
 import { AppHeader } from './features/layout/AppHeader'
-import { ManagementWorkspace } from './features/management/ManagementWorkspace'
-import { SustainabilityStrip } from './features/summary/SustainabilityStrip'
-
-const customerId = 'demo-student'
-const customerName = 'Aluno Digital Flavor'
+import {
+  ManagementWorkspace,
+  type ProductAdjustmentDraft
+} from './features/management/ManagementWorkspace'
 
 function cloneProduct(product: Product) {
   return new Product({
@@ -67,6 +66,21 @@ function cloneCart(cart: Cart, products: Product[]) {
   return next
 }
 
+function formatPriceInput(priceCents: number) {
+  return (priceCents / 100).toFixed(2).replace('.', ',')
+}
+
+function parsePriceCents(value: string) {
+  const normalized = value.replace(/[^\d,.-]/g, '').replace(',', '.')
+  const price = Number(normalized)
+
+  if (Number.isNaN(price) || price < 0) {
+    throw new Error('Informe um preco valido.')
+  }
+
+  return Math.round(price * 100)
+}
+
 export default function App() {
   const navigate = useNavigate()
   const [session, setSession] = useState<AuthSession | undefined>(() => readSession())
@@ -76,13 +90,14 @@ export default function App() {
   const [inventory, setInventory] = useState(() => seedInventory.map(cloneInventoryItem))
   const [cart, setCart] = useState(() => new Cart())
   const [queue, setQueue] = useState(() => seedOrders)
-  const [activeOrder, setActiveOrder] = useState<Order | undefined>(undefined)
+  const [preparingOrders, setPreparingOrders] = useState<Order[]>([])
   const [completedOrders, setCompletedOrders] = useState<typeof seedOrders>([])
   const [adminHistory, setAdminHistory] = useState<AdminAction[]>([])
   const [pickupTime, setPickupTime] = useState('10:30')
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('pix')
-  const [latestOrderCode, setLatestOrderCode] = useState<string>()
+  const [latestOrderId, setLatestOrderId] = useState<string>()
   const [errorMessage, setErrorMessage] = useState<string>()
+  const [productAdjustments, setProductAdjustments] = useState<Record<string, ProductAdjustmentDraft>>({})
   const [productDraft, setProductDraft] = useState<{
     name: string
     price: string
@@ -95,11 +110,80 @@ export default function App() {
 
   const activeProducts = useMemo(() => products.filter((product) => product.active), [products])
   const cartItems = cart.listItems()
-  const activeStock = inventory.reduce((sum, item) => sum + item.availableQuantity, 0)
-  const salesCents = [...queue, ...completedOrders, ...(activeOrder ? [activeOrder] : [])].reduce(
+  const salesCents = [...queue, ...preparingOrders, ...completedOrders].reduce(
     (sum, order) => sum + order.totalCents,
     0
   )
+  const productAdjustmentDrafts = useMemo(() => {
+    return Object.fromEntries(
+      products.map((product) => [
+        product.id,
+        productAdjustments[product.id] ?? {
+          quantity: '1',
+          price: formatPriceInput(product.priceCents)
+        }
+      ])
+    ) as Record<string, ProductAdjustmentDraft>
+  }, [productAdjustments, products])
+  const customerOrderStatus = useMemo(() => {
+    if (!latestOrderId) {
+      return {
+        headerLabel: `Fila agora ${queue.length}`,
+        title: `Fila agora: ${queue.length}`,
+        detail: 'Faca seu pedido para acompanhar a posicao de retirada.',
+        tone: 'info' as const
+      }
+    }
+
+    const queuedIndex = queue.findIndex((order) => order.id === latestOrderId)
+
+    if (queuedIndex >= 0) {
+      const order = queue[queuedIndex]
+
+      return {
+        headerLabel: `Sua posicao ${queuedIndex + 1}`,
+        title: `Sua posicao: ${queuedIndex + 1}`,
+        detail: 'Pedido confirmado. A cantina vai chamar os pedidos na ordem de chegada.',
+        code: order.pickupCode,
+        tone: 'warning' as const
+      }
+    }
+
+    const preparingOrder = preparingOrders.find((order) => order.id === latestOrderId)
+
+    if (preparingOrder) {
+      const ready = preparingOrder.status === 'ready'
+
+      return {
+        headerLabel: ready ? 'Pronto' : 'Em preparo',
+        title: ready ? 'Pronto' : 'Em preparo',
+        detail: ready
+          ? 'Seu pedido esta pronto para retirada.'
+          : 'Seu pedido ja esta sendo preparado.',
+        code: preparingOrder.pickupCode,
+        tone: ready ? ('success' as const) : ('info' as const)
+      }
+    }
+
+    const completedOrder = completedOrders.find((order) => order.id === latestOrderId)
+
+    if (completedOrder) {
+      return {
+        headerLabel: 'Retirado',
+        title: 'Retirado',
+        detail: 'Pedido finalizado. Obrigado pela compra.',
+        code: completedOrder.pickupCode,
+        tone: 'success' as const
+      }
+    }
+
+    return {
+      headerLabel: `Fila agora ${queue.length}`,
+      title: `Fila agora: ${queue.length}`,
+      detail: 'Faca seu pedido para acompanhar a posicao de retirada.',
+      tone: 'info' as const
+    }
+  }, [completedOrders, latestOrderId, preparingOrders, queue])
 
   function handleLogin(email: string, password: string) {
     setLoginError(undefined)
@@ -144,7 +228,7 @@ export default function App() {
     clearSession()
     setSession(undefined)
     setCart(new Cart())
-    setLatestOrderCode(undefined)
+    setLatestOrderId(undefined)
     navigate('/login', { replace: true })
   }
 
@@ -205,8 +289,8 @@ export default function App() {
       const checkout = new CheckoutService(stockService)
       const order = checkout.createOrder({
         cart,
-        customerId,
-        customerName,
+        customerId: session?.email ?? 'cliente-digital-flavor',
+        customerName: session?.name ?? 'Cliente Digital Flavor',
         paymentMethod,
         pickupTime
       })
@@ -217,68 +301,110 @@ export default function App() {
       setQueue((current) => [...current, order])
       setInventory(stockService.snapshot().map(cloneInventoryItem))
       setCart(new Cart())
-      setLatestOrderCode(order.pickupCode)
+      setLatestOrderId(order.id)
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Nao foi possivel confirmar.')
     }
   }
 
   function handleTakeNextOrder() {
-    setQueue((current) => {
-      const [nextOrder, ...remaining] = current
+    const [nextOrder, ...remaining] = queue
 
-      if (nextOrder) {
-        nextOrder.advance('preparing')
-        setActiveOrder(nextOrder)
-      }
-
-      return remaining
-    })
-  }
-
-  function handleMarkReady() {
-    if (!activeOrder) {
+    if (!nextOrder) {
       return
     }
 
-    activeOrder.advance('ready')
-    setActiveOrder(activeOrder)
+    nextOrder.advance('preparing')
+    setQueue(remaining)
+    setPreparingOrders((current) => [nextOrder, ...current])
   }
 
-  function handleCompleteActiveOrder() {
-    if (!activeOrder) {
-      return
-    }
-
-    activeOrder.advance('completed')
-    setCompletedOrders((current) => [...current, activeOrder])
-    setActiveOrder(undefined)
-  }
-
-  function handleRestock(productId: string, units: number) {
-    const before = inventory.map(cloneInventoryItem)
-    const product = products.find((item) => item.id === productId)
-
-    setInventory((current) =>
-      current.map((item) => {
-        const next = cloneInventoryItem(item)
-
-        if (next.productId === productId) {
-          next.restock(units)
+  function handleMarkReady(orderId: string) {
+    setPreparingOrders((current) =>
+      current.map((order) => {
+        if (order.id === orderId) {
+          order.advance('ready')
         }
 
-        return next
+        return order
       })
     )
-
-    pushHistory(`Reposicao de ${units} unidades em ${product?.name ?? productId}`, () => {
-      setInventory(before)
-    })
   }
 
-  function handlePriceChange(productId: string, cents: number) {
+  function handleCompleteOrder(orderId: string) {
+    const order = preparingOrders.find((item) => item.id === orderId)
+
+    if (!order) {
+      return
+    }
+
+    order.advance('completed')
+    setPreparingOrders((current) => current.filter((item) => item.id !== orderId))
+    setCompletedOrders((current) => [...current, order])
+  }
+
+  function handleProductAdjustmentChange(productId: string, draft: ProductAdjustmentDraft) {
+    setProductAdjustments((current) => ({
+      ...current,
+      [productId]: draft
+    }))
+  }
+
+  function handleAdjustStock(productId: string, units: number) {
+    if (!Number.isInteger(units) || units === 0) {
+      return
+    }
+
+    const before = inventory.map(cloneInventoryItem)
+    const product = products.find((item) => item.id === productId)
+    let invalidAdjustment = false
+    const nextInventory = inventory.map((item) => {
+      const next = cloneInventoryItem(item)
+
+      if (next.productId === productId) {
+        if (units > 0) {
+          next.restock(units)
+        } else {
+          const unitsToRemove = Math.abs(units)
+
+          if (unitsToRemove > next.availableQuantity) {
+            invalidAdjustment = true
+            return next
+          }
+
+          next.quantity -= unitsToRemove
+        }
+      }
+
+      return next
+    })
+
+    if (invalidAdjustment) {
+      setErrorMessage('Quantidade maior que o estoque disponivel.')
+      return
+    }
+
+    setInventory(nextInventory)
+    pushHistory(
+      `${units > 0 ? 'Entrada' : 'Saida'} de ${Math.abs(units)} unidades em ${product?.name ?? productId}`,
+      () => {
+        setInventory(before)
+      }
+    )
+  }
+
+  function handleSaveProductPrice(productId: string) {
     const before = products.map(cloneProduct)
     const product = products.find((item) => item.id === productId)
+    const draft = productAdjustmentDrafts[productId]
+    let cents: number
+
+    try {
+      cents = parsePriceCents(draft?.price ?? '')
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'Informe um preco valido.')
+      return
+    }
 
     setProducts((current) =>
       current.map((item) => {
@@ -295,6 +421,13 @@ export default function App() {
     pushHistory(`Preco atualizado em ${product?.name ?? productId}`, () => {
       setProducts(before)
     })
+    setProductAdjustments((current) => ({
+      ...current,
+      [productId]: {
+        quantity: current[productId]?.quantity ?? '1',
+        price: formatPriceInput(cents)
+      }
+    }))
   }
 
   function handleDeactivateProduct(productId: string) {
@@ -318,6 +451,27 @@ export default function App() {
     })
   }
 
+  function handleActivateProduct(productId: string) {
+    const before = products.map(cloneProduct)
+    const product = products.find((item) => item.id === productId)
+
+    setProducts((current) =>
+      current.map((item) => {
+        const next = cloneProduct(item)
+
+        if (next.id === productId) {
+          next.activate()
+        }
+
+        return next
+      })
+    )
+
+    pushHistory(`Produto disponivel: ${product?.name ?? productId}`, () => {
+      setProducts(before)
+    })
+  }
+
   function handleCreateProduct() {
     const priceNumber = Number(productDraft.price.replace(',', '.'))
 
@@ -331,7 +485,7 @@ export default function App() {
     const newProduct = new Product({
       id: `produto-${Date.now()}`,
       name: productDraft.name.trim(),
-      description: 'Produto cadastrado pela gestao com controle de estoque.',
+      description: 'Produto cadastrado para venda no cardapio.',
       category: productDraft.category,
       priceCents: Math.round(priceNumber * 100),
       preparationMinutes: 6,
@@ -368,17 +522,9 @@ export default function App() {
       <AppHeader
         role="student"
         cartItems={cart.totalItems}
-        queuedOrders={queue.length}
+        queueLabel={customerOrderStatus.headerLabel}
         userName={session.name}
         onLogout={handleLogout}
-      />
-      <SustainabilityStrip
-        salesCents={salesCents}
-        activeStock={activeStock}
-        queuedOrders={queue.length}
-        wasteReduction={-28}
-        showMetrics={false}
-        showColorGuide={false}
       />
       <CustomerOrdering
         products={activeProducts}
@@ -387,7 +533,7 @@ export default function App() {
         cartTotalCents={cart.totalCents}
         pickupTime={pickupTime}
         paymentMethod={paymentMethod}
-        latestOrderCode={latestOrderCode}
+        orderStatus={customerOrderStatus}
         errorMessage={errorMessage}
         onPickupTimeChange={setPickupTime}
         onPaymentMethodChange={setPaymentMethod}
@@ -405,32 +551,29 @@ export default function App() {
       <AppHeader
         role="admin"
         cartItems={cart.totalItems}
-        queuedOrders={queue.length}
+        queueLabel={`Pedidos ${queue.length + preparingOrders.length}`}
         userName={session.name}
         onLogout={handleLogout}
-      />
-      <SustainabilityStrip
-        salesCents={salesCents}
-        activeStock={activeStock}
-        queuedOrders={queue.length}
-        wasteReduction={-28}
-        showColorGuide={false}
       />
       <ManagementWorkspace
         products={products}
         inventory={inventory}
         queue={queue}
-        activeOrder={activeOrder}
+        preparingOrders={preparingOrders}
         completedOrders={completedOrders}
+        salesCents={salesCents}
         adminHistory={adminHistory}
         productDraft={productDraft}
+        productAdjustments={productAdjustmentDrafts}
         onProductDraftChange={setProductDraft}
+        onProductAdjustmentChange={handleProductAdjustmentChange}
         onTakeNextOrder={handleTakeNextOrder}
         onMarkReady={handleMarkReady}
-        onCompleteActiveOrder={handleCompleteActiveOrder}
-        onRestock={handleRestock}
-        onPriceChange={handlePriceChange}
+        onCompleteOrder={handleCompleteOrder}
+        onAdjustStock={handleAdjustStock}
+        onSaveProductPrice={handleSaveProductPrice}
         onDeactivateProduct={handleDeactivateProduct}
+        onActivateProduct={handleActivateProduct}
         onCreateProduct={handleCreateProduct}
         onUndoLast={handleUndoLast}
       />
