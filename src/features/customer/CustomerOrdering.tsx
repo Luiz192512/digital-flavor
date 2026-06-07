@@ -53,16 +53,16 @@ export function CustomerOrdering({
   const inventoryByProduct = new Map(inventory.map((item) => [item.productId, item]))
 
   return (
-    <section id="cardapio" className="mx-auto grid max-w-7xl gap-5 px-5 py-6 xl:grid-cols-[1fr_360px]">
-      <div className="space-y-5">
+    <section id="cardapio" className="mx-auto grid max-w-7xl gap-4 px-4 py-4 sm:gap-5 sm:px-5 sm:py-6 xl:grid-cols-[1fr_360px]">
+      <div className="space-y-4 sm:space-y-5">
         <Panel className="overflow-hidden">
-          <div className="border-b border-slate-200 bg-white p-5">
+          <div className="border-b border-slate-200 bg-white p-4 sm:p-5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-wide text-orange-600">
                   Pedido antecipado
                 </p>
-                <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-950">
+                <h1 className="mt-1 text-xl font-bold tracking-tight text-slate-950 sm:text-2xl">
                   Cardapio para o intervalo
                 </h1>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
@@ -73,7 +73,7 @@ export function CustomerOrdering({
             </div>
           </div>
 
-          <div className="grid gap-4 p-5 md:grid-cols-2">
+          <div className="grid gap-3 p-3 sm:p-5 md:grid-cols-2">
             {products.map((product) => {
               const stock = inventoryByProduct.get(product.id)
               const available = stock?.availableQuantity ?? 0
@@ -90,9 +90,9 @@ export function CustomerOrdering({
               return (
                 <article
                   key={product.id}
-                  className="grid min-h-[200px] gap-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:border-orange-200 hover:shadow-md sm:grid-cols-[92px_1fr]"
+                  className="grid min-h-0 grid-cols-[76px_1fr] gap-3 rounded-lg border border-slate-200 bg-white p-3 shadow-sm transition hover:border-orange-200 hover:shadow-md sm:min-h-[200px] sm:grid-cols-[92px_1fr] sm:gap-4 sm:p-4"
                 >
-                  <div className="flex h-24 w-full items-center justify-center rounded-lg bg-gradient-to-br from-green-50 via-white to-orange-50 text-4xl sm:h-full">
+                  <div className="flex h-20 w-full items-center justify-center rounded-lg bg-gradient-to-br from-green-50 via-white to-orange-50 text-3xl sm:h-full sm:text-4xl">
                     {product.category === 'bebida'
                       ? '🥤'
                       : product.category === 'fruta'
@@ -102,19 +102,19 @@ export function CustomerOrdering({
                           : '🍞'}
                   </div>
                   <div className="flex min-w-0 flex-col">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
                         <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                           {categoryLabel[product.category]}
                         </p>
                         <h2 className="mt-1 text-lg font-bold text-slate-950">{product.name}</h2>
                       </div>
-                      <p className="shrink-0 text-lg font-bold text-slate-950">
+                      <p className="shrink-0 text-base font-bold text-slate-950 sm:text-lg">
                         {product.priceLabel}
                       </p>
                     </div>
                     <p className="mt-2 text-sm leading-6 text-slate-600">{product.description}</p>
-                    <div className="mt-auto flex items-center justify-between gap-3 pt-4">
+                    <div className="mt-auto flex flex-col gap-3 pt-3 sm:flex-row sm:items-center sm:justify-between sm:pt-4">
                       <div>
                         <StatusBadge tone={stockTone}>
                           {stockStatus === 'available'
@@ -131,6 +131,7 @@ export function CustomerOrdering({
                       </div>
                       <Button
                         type="button"
+                        className="w-full sm:w-auto"
                         disabled={available === 0 || !product.active}
                         onClick={() => onAddProduct(product.id)}
                       >
@@ -146,8 +147,8 @@ export function CustomerOrdering({
         </Panel>
       </div>
 
-      <aside className="space-y-5 xl:sticky xl:top-28 xl:h-fit">
-        <Panel className="p-5">
+      <aside className={`space-y-4 sm:space-y-5 xl:sticky xl:top-28 xl:h-fit ${cartItems.length > 0 ? 'order-first xl:order-none' : ''}`}>
+        <Panel className="p-4 sm:p-5">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-100 text-orange-600">
               <ShoppingBag size={20} aria-hidden="true" />
@@ -240,7 +241,7 @@ export function CustomerOrdering({
           </div>
         </Panel>
 
-        <Panel className="p-5">
+        <Panel className="p-4 sm:p-5">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <Clock className="text-blue-600" aria-hidden="true" />

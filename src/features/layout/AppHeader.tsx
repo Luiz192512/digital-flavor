@@ -37,51 +37,55 @@ export function AppHeader({
 
   return (
     <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl flex-col gap-4 px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-green-600 text-white">
-              <Utensils size={22} aria-hidden="true" />
-            </div>
-            <div>
-              <p className="text-lg font-bold tracking-tight text-slate-950">Digital Flavor</p>
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Pedidos e retirada
-              </p>
-            </div>
+      <div className="mx-auto grid max-w-7xl grid-cols-[1fr_auto] items-center gap-2 px-4 py-2.5 sm:gap-3 sm:px-5 sm:py-4 lg:flex lg:justify-between">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-green-600 text-white sm:h-11 sm:w-11">
+            <Utensils size={20} className="sm:size-[22px]" aria-hidden="true" />
           </div>
+          <div className="min-w-0">
+            <p className="truncate text-base font-bold tracking-tight text-slate-950 sm:text-lg">
+              Digital Flavor
+            </p>
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 sm:text-xs">
+              Pedidos e retirada
+            </p>
+          </div>
+        </div>
+
+        <div className="justify-self-end">
           <StatusBadge tone={role === 'admin' ? 'info' : 'success'}>
             {role === 'admin' ? '/admin' : 'Cliente'}
           </StatusBadge>
         </div>
 
-        <div className="flex flex-1 flex-col gap-3 lg:max-w-5xl lg:flex-row lg:items-center">
-          <label className="flex min-h-10 flex-1 items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-500">
-            <Search size={17} aria-hidden="true" />
-            <span className="sr-only">Buscar</span>
-            <input
-              className="w-full bg-transparent text-slate-700 outline-none placeholder:text-slate-400"
-              placeholder="Buscar produto ou pedido"
-            />
-          </label>
+        <label className="col-span-2 flex min-h-10 items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-500 lg:col-span-1 lg:min-w-[360px] lg:flex-1">
+          <Search size={17} aria-hidden="true" />
+          <span className="sr-only">Buscar</span>
+          <input
+            className="w-full bg-transparent text-slate-700 outline-none placeholder:text-slate-400"
+            placeholder="Buscar produto ou pedido"
+          />
+        </label>
 
+        <div className="col-span-2 grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 lg:col-span-1 lg:flex lg:flex-nowrap lg:justify-end">
           {role === 'student' ? (
-            <div className="relative">
+            <div className="relative min-w-0">
               <button
                 type="button"
-                className="flex min-h-10 max-w-40 items-center gap-2 rounded-lg bg-slate-100 px-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"
+                className="flex min-h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-sm font-semibold text-slate-700 transition hover:bg-slate-200 sm:w-auto sm:max-w-40 sm:justify-start sm:gap-2 sm:px-3"
                 onClick={() => setProfileOpen((current) => !current)}
                 aria-expanded={profileOpen}
+                aria-label={`Abrir perfil de ${userName}`}
               >
-                <UserCircle size={18} className="text-orange-600" aria-hidden="true" />
-                <span className="truncate">{shortName}</span>
-                <ChevronDown size={15} aria-hidden="true" />
+                <UserCircle size={18} className="shrink-0 text-orange-600" aria-hidden="true" />
+                <span className="hidden truncate sm:inline">{shortName}</span>
+                <ChevronDown size={15} className="hidden shrink-0 sm:block" aria-hidden="true" />
               </button>
 
               {profileOpen ? (
-                <div className="absolute right-0 mt-2 w-64 rounded-lg border border-slate-200 bg-white p-2 shadow-lg shadow-slate-200/80">
+                <div className="absolute left-0 z-40 mt-2 w-[min(18rem,calc(100vw-2rem))] rounded-lg border border-slate-200 bg-white p-2 shadow-lg shadow-slate-200/80 sm:left-auto sm:right-0">
                   <div className="border-b border-slate-100 px-3 py-2">
-                    <p className="text-sm font-bold text-slate-950">{userName}</p>
+                    <p className="truncate text-sm font-bold text-slate-950">{userName}</p>
                     <p className="text-xs text-slate-500">Perfil do cliente</p>
                   </div>
                   <Link
@@ -120,25 +124,23 @@ export function AppHeader({
               ) : null}
             </div>
           ) : (
-            <div className="flex min-h-10 max-w-44 items-center gap-2 rounded-lg bg-slate-100 px-3 text-sm font-semibold text-slate-700">
-              <ShieldCheck size={17} className="text-blue-700" aria-hidden="true" />
+            <div className="flex min-h-10 items-center gap-2 rounded-lg bg-slate-100 px-3 text-sm font-semibold text-slate-700 lg:max-w-[11rem]">
+              <ShieldCheck size={17} className="shrink-0 text-blue-700" aria-hidden="true" />
               <span className="truncate">Administrador</span>
             </div>
           )}
-        </div>
-
-        <div className="flex gap-2">
-          <Button type="button" variant="quiet">
+          <Button type="button" variant="quiet" className="min-w-0 px-2 text-xs sm:px-4 sm:text-sm">
             {queueLabel}
           </Button>
           {role === 'student' ? (
-            <Button type="button" variant="primary">
+            <Button type="button" variant="primary" className="px-2 text-xs sm:px-4 sm:text-sm">
               <ShoppingCart size={17} aria-hidden="true" />
-              Pedido {cartItems}
+              <span className="sm:hidden">{cartItems}</span>
+              <span className="hidden sm:inline">Pedido {cartItems}</span>
             </Button>
           ) : null}
           {role === 'admin' ? (
-            <Button type="button" variant="quiet" onClick={onLogout}>
+            <Button type="button" variant="quiet" className="px-2 text-xs sm:px-4 sm:text-sm" onClick={onLogout}>
               <LogOut size={17} aria-hidden="true" />
               Sair
             </Button>

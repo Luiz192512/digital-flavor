@@ -87,7 +87,7 @@ export function AccountSettingsPage({
           />
         </div>
 
-        <Button type="submit" variant="secondary" className="w-fit">
+        <Button type="submit" variant="secondary" className="w-full sm:w-fit">
           <Save size={17} aria-hidden="true" />
           Salvar configuracoes
         </Button>
@@ -168,7 +168,7 @@ export function ProfileDetailsPage({
             <option value="noite">Noite</option>
           </select>
         </label>
-        <Button type="submit" variant="secondary" className="w-fit sm:col-span-2">
+        <Button type="submit" variant="secondary" className="w-full sm:col-span-2 sm:w-fit">
           <Save size={17} aria-hidden="true" />
           Salvar perfil
         </Button>
@@ -236,6 +236,7 @@ export function PaymentMethodsPage({
             <Button
               type="button"
               variant={method.preferred ? 'quiet' : 'secondary'}
+              className="w-full sm:w-auto"
               disabled={method.preferred}
               onClick={() => makePreferred(method.id)}
             >
@@ -254,7 +255,7 @@ export function PaymentMethodsPage({
             placeholder="E-mail, telefone ou chave aleatoria"
           />
         </label>
-        <Button type="submit" className="w-fit">
+        <Button type="submit" className="w-full sm:w-fit">
           Adicionar PIX
         </Button>
       </form>
@@ -276,20 +277,23 @@ function AccountContent({
   children: ReactNode
 }) {
   return (
-    <section className="mx-auto max-w-5xl px-5 py-6">
-      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <section className="mx-auto max-w-5xl px-4 py-4 sm:px-5 sm:py-6">
+      <div className="mb-4 flex flex-col gap-3 sm:mb-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">{eyebrow}</p>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-950">{title}</h1>
+          <h1 className="text-xl font-bold tracking-tight text-slate-950 sm:text-2xl">{title}</h1>
           <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
         </div>
-        <Link className="text-sm font-bold text-orange-600 underline" to="/">
+        <Link
+          className="inline-flex w-fit rounded-md bg-orange-50 px-3 py-2 text-sm font-bold text-orange-700 underline-offset-2 hover:bg-orange-100 sm:bg-transparent sm:px-0 sm:py-0 sm:text-orange-600 sm:underline"
+          to="/"
+        >
           Voltar ao cardapio
         </Link>
       </div>
 
-      <Panel className="p-5">
-        <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-lg bg-slate-50 ring-1 ring-slate-200">
+      <Panel className="p-4 sm:p-5">
+        <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-slate-50 ring-1 ring-slate-200 sm:mb-5">
           {icon}
         </div>
         {children}
@@ -312,7 +316,7 @@ function PreferenceToggle({
   icon: ReactNode
 }) {
   return (
-    <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-200 p-4">
+    <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-200 p-3 sm:p-4">
       <span className="mt-1 text-blue-700">{icon}</span>
       <span className="min-w-0 flex-1">
         <span className="block font-bold text-slate-950">{title}</span>

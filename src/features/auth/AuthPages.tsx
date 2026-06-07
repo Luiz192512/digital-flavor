@@ -203,36 +203,36 @@ function AuthLayout({
   children: ReactNode
 }) {
   return (
-    <main className="min-h-screen bg-slate-50 px-5 py-8 text-slate-950">
-      <Panel className="mx-auto grid max-w-5xl overflow-hidden lg:grid-cols-[0.95fr_1.05fr]">
-        <section className="flex min-h-[620px] flex-col justify-between bg-gradient-to-br from-green-700 via-green-600 to-blue-700 p-8 text-white">
+    <main className="min-h-screen bg-slate-50 px-4 py-4 text-slate-950 sm:px-5 sm:py-8">
+      <Panel className="mx-auto flex max-w-5xl flex-col overflow-hidden lg:grid lg:grid-cols-[0.95fr_1.05fr]">
+        <section className="order-2 flex min-h-0 flex-col gap-5 bg-gradient-to-br from-green-700 via-green-600 to-blue-700 p-5 text-white sm:p-6 lg:order-none lg:min-h-[620px] lg:justify-between lg:p-8">
           <div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-white/15 ring-1 ring-white/25">
-              <Utensils size={25} aria-hidden="true" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/15 ring-1 ring-white/25 lg:h-12 lg:w-12">
+              <Utensils size={22} aria-hidden="true" />
             </div>
-            <h1 className="mt-8 max-w-md text-4xl font-bold tracking-tight">
+            <h1 className="mt-4 max-w-md text-2xl font-bold tracking-tight lg:mt-8 lg:text-4xl">
               Digital Flavor
             </h1>
-            <p className="mt-4 max-w-md text-lg leading-8 text-green-50">
+            <p className="mt-3 max-w-md text-sm leading-6 text-green-50 lg:mt-4 lg:text-lg lg:leading-8">
               Pedido antecipado para retirar no intervalo, com controle simples de
               produtos, precos e atendimento da cantina.
             </p>
           </div>
-          <div className="grid gap-3 text-sm text-green-50">
+          <div className="grid gap-2 text-xs text-green-50 sm:text-sm lg:gap-3">
             <p>Compra rapida para quem quer evitar espera.</p>
             <p>Painel de produtos e pedidos para a equipe.</p>
             <p>Status claro do pedido ate a retirada.</p>
           </div>
         </section>
 
-        <section className="flex min-h-[620px] items-center p-6 sm:p-10">
+        <section className="order-1 flex min-h-0 items-center p-5 sm:p-8 lg:order-none lg:min-h-[620px] lg:p-10">
           <div className="w-full">
             <StatusBadge tone="info">Acesso por perfil</StatusBadge>
-            <h2 className="mt-4 text-3xl font-bold tracking-tight text-slate-950">
+            <h2 className="mt-4 text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">
               {title}
             </h2>
             <p className="mt-3 text-sm leading-6 text-slate-600">{description}</p>
-            <div className="mt-7">{children}</div>
+            <div className="mt-5 sm:mt-7">{children}</div>
           </div>
         </section>
       </Panel>

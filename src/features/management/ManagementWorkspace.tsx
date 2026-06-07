@@ -95,22 +95,22 @@ export function ManagementWorkspace({
   }
 
   return (
-    <section id="admin-panel" className="mx-auto max-w-7xl px-5 py-6">
-      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <section id="admin-panel" className="mx-auto max-w-7xl px-4 py-4 sm:px-5 sm:py-6">
+      <div className="mb-4 flex flex-col gap-3 sm:mb-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">
             Painel da cantina
           </p>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-950">
+          <h1 className="text-xl font-bold tracking-tight text-slate-950 sm:text-2xl">
             Atendimento e produtos
           </h1>
         </div>
-        <div className="grid grid-cols-3 gap-2 rounded-lg bg-slate-100 p-1">
+        <div className="grid grid-cols-3 gap-1 rounded-lg bg-slate-100 p-1 sm:gap-2">
           {(Object.keys(tabLabel) as AdminTab[]).map((tab) => (
             <button
               key={tab}
               type="button"
-              className={`min-h-10 rounded-md px-4 text-sm font-semibold transition ${
+              className={`min-h-10 whitespace-nowrap rounded-md px-2 text-xs font-semibold transition sm:px-4 sm:text-sm ${
                 activeTab === tab
                   ? 'bg-white text-blue-700 shadow-sm'
                   : 'text-slate-600 hover:text-slate-950'
@@ -124,34 +124,40 @@ export function ManagementWorkspace({
       </div>
 
       {activeTab === 'orders' ? (
-        <Panel className="p-5">
+        <Panel className="p-4 sm:p-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">
                 Ordem de preparo
               </p>
-              <h2 className="mt-1 text-2xl font-bold tracking-tight text-slate-950">
+              <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-950 sm:text-2xl">
                 Pedidos em atendimento
               </h2>
               <p className="mt-2 text-sm leading-6 text-slate-600">
                 Chame o proximo pedido, acompanhe o preparo e finalize a entrega.
               </p>
             </div>
-            <Button type="button" variant="secondary" onClick={onTakeNextOrder} disabled={queue.length === 0}>
+            <Button
+              type="button"
+              variant="secondary"
+              className="w-full sm:w-auto"
+              onClick={onTakeNextOrder}
+              disabled={queue.length === 0}
+            >
               <ClipboardList size={18} aria-hidden="true" />
               Chamar proximo
             </Button>
           </div>
 
-          <div className="mt-5 grid gap-4 xl:grid-cols-[1fr_0.85fr]">
-            <div className="space-y-3 rounded-lg border border-blue-100 bg-blue-50 p-4">
+          <div className="mt-4 grid gap-4 sm:mt-5 xl:grid-cols-[1fr_0.85fr]">
+            <div className="space-y-3 rounded-lg border border-blue-100 bg-blue-50 p-3 sm:p-4">
               <p className="text-sm font-semibold text-blue-800">Em preparo</p>
               {preparingOrders.length > 0 ? (
                 preparingOrders.map((order) => (
-                  <article key={order.id} className="rounded-lg bg-white p-4 shadow-sm">
+                  <article key={order.id} className="rounded-lg bg-white p-3 shadow-sm sm:p-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                       <div>
-                        <h3 className="text-xl font-bold text-blue-950">{order.customerName}</h3>
+                        <h3 className="text-lg font-bold text-blue-950 sm:text-xl">{order.customerName}</h3>
                         <p className="text-sm text-blue-800">
                           Codigo {order.pickupCode} - retirada {order.pickupTime}
                         </p>
@@ -170,10 +176,11 @@ export function ManagementWorkspace({
                         </li>
                       ))}
                     </ul>
-                    <div className="mt-4 flex flex-wrap gap-2">
+                    <div className="mt-4 grid gap-2 sm:flex sm:flex-wrap">
                       <Button
                         type="button"
                         variant="quiet"
+                        className="w-full sm:w-auto"
                         onClick={() => onMarkReady(order.id)}
                         disabled={order.status === 'ready'}
                       >
@@ -183,6 +190,7 @@ export function ManagementWorkspace({
                       <Button
                         type="button"
                         variant="secondary"
+                        className="w-full sm:w-auto"
                         onClick={() => onCompleteOrder(order.id)}
                       >
                         Entregar
@@ -228,18 +236,25 @@ export function ManagementWorkspace({
       {activeTab === 'products' ? (
         <div className="grid gap-5">
           <Panel className="overflow-hidden">
-            <div className="flex items-center justify-between gap-4 border-b border-slate-200 p-5">
+            <div className="flex flex-col items-start gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-wide text-green-700">
                   Produtos
                 </p>
-                <h2 className="text-2xl font-bold tracking-tight text-slate-950">
+                <h2 className="text-xl font-bold tracking-tight text-slate-950 sm:text-2xl">
                   Cardapio e estoque
                 </h2>
               </div>
-              <Button type="button" variant="quiet" onClick={onUndoLast} disabled={adminHistory.length === 0}>
+              <Button
+                type="button"
+                variant="quiet"
+                className="w-full sm:w-auto"
+                onClick={onUndoLast}
+                disabled={adminHistory.length === 0}
+              >
                 <RotateCcw size={17} aria-hidden="true" />
-                Desfazer ultima alteracao
+                <span className="sm:hidden">Desfazer</span>
+                <span className="hidden sm:inline">Desfazer ultima alteracao</span>
               </Button>
             </div>
 
@@ -261,7 +276,7 @@ export function ManagementWorkspace({
                 return (
                   <article
                     key={product.id}
-                    className={`grid gap-4 p-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(170px,0.55fr)_minmax(190px,0.65fr)_minmax(240px,0.8fr)] lg:items-center ${
+                    className={`grid gap-4 p-4 sm:p-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(170px,0.55fr)_minmax(190px,0.65fr)_minmax(240px,0.8fr)] lg:items-center ${
                       !product.active ? 'bg-slate-50 opacity-80' : 'bg-white'
                     }`}
                   >
@@ -277,9 +292,9 @@ export function ManagementWorkspace({
 
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Preco</p>
-                      <div className="mt-2 flex flex-wrap gap-2">
+                      <div className="mt-2 grid grid-cols-[1fr_auto] gap-2 sm:flex sm:flex-wrap">
                         <input
-                          className="min-h-10 w-28 rounded-md border border-slate-200 px-3 outline-none focus:border-blue-500"
+                          className="min-h-10 w-full rounded-md border border-slate-200 px-3 outline-none focus:border-blue-500 sm:w-28"
                           value={draft.price}
                           aria-label={`Preco de ${product.name}`}
                           onChange={(event) =>
@@ -289,7 +304,12 @@ export function ManagementWorkspace({
                             })
                           }
                         />
-                        <Button type="button" variant="quiet" onClick={() => onSaveProductPrice(product.id)}>
+                        <Button
+                          type="button"
+                          variant="quiet"
+                          className="px-3"
+                          onClick={() => onSaveProductPrice(product.id)}
+                        >
                           <Save size={15} aria-hidden="true" />
                           Salvar
                         </Button>
@@ -320,9 +340,9 @@ export function ManagementWorkspace({
 
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Quantidade</p>
-                      <div className="mt-2 grid gap-2 sm:grid-cols-[80px_1fr_1fr]">
+                      <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-[80px_1fr_1fr]">
                         <input
-                          className="min-h-10 rounded-md border border-slate-200 px-3 outline-none focus:border-blue-500"
+                          className="col-span-2 min-h-10 rounded-md border border-slate-200 px-3 outline-none focus:border-blue-500 sm:col-span-1"
                           type="number"
                           min="1"
                           value={draft.quantity}
@@ -334,20 +354,40 @@ export function ManagementWorkspace({
                             })
                           }
                         />
-                        <Button type="button" variant="quiet" onClick={() => onAdjustStock(product.id, quantityFor(product.id))}>
+                        <Button
+                          type="button"
+                          variant="quiet"
+                          className="px-2"
+                          onClick={() => onAdjustStock(product.id, quantityFor(product.id))}
+                        >
                           Adicionar
                         </Button>
-                        <Button type="button" variant="quiet" onClick={() => onAdjustStock(product.id, -quantityFor(product.id))}>
+                        <Button
+                          type="button"
+                          variant="quiet"
+                          className="px-2"
+                          onClick={() => onAdjustStock(product.id, -quantityFor(product.id))}
+                        >
                           Retirar
                         </Button>
                       </div>
                       <div className="mt-2">
                         {product.active ? (
-                          <Button type="button" variant="danger" onClick={() => onDeactivateProduct(product.id)}>
+                          <Button
+                            type="button"
+                            variant="danger"
+                            className="w-full sm:w-auto"
+                            onClick={() => onDeactivateProduct(product.id)}
+                          >
                             Pausar
                           </Button>
                         ) : (
-                          <Button type="button" variant="secondary" onClick={() => onActivateProduct(product.id)}>
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            className="w-full sm:w-auto"
+                            onClick={() => onActivateProduct(product.id)}
+                          >
                             Disponivel
                           </Button>
                         )}
@@ -360,7 +400,7 @@ export function ManagementWorkspace({
           </Panel>
 
           <div className="grid gap-5 lg:grid-cols-2">
-            <Panel className="p-5">
+            <Panel className="p-4 sm:p-5">
               <div className="flex items-center gap-3">
                 <Plus className="text-green-600" aria-hidden="true" />
                 <div>
@@ -396,13 +436,13 @@ export function ManagementWorkspace({
                   <option value="fruta">Fruta</option>
                   <option value="combo">Combo</option>
                 </select>
-                <Button type="submit" variant="secondary">
+                <Button type="submit" variant="secondary" className="w-full sm:w-auto">
                   Criar produto
                 </Button>
               </form>
             </Panel>
 
-            <Panel className="p-5">
+            <Panel className="p-4 sm:p-5">
               <div className="flex items-center gap-3">
                 <History className="text-orange-500" aria-hidden="true" />
                 <div>
@@ -428,14 +468,14 @@ export function ManagementWorkspace({
       ) : null}
 
       {activeTab === 'reports' ? (
-        <Panel className="p-5">
+        <Panel className="p-4 sm:p-5">
           <div className="flex items-center gap-3">
             <BarChart3 className="text-blue-700" aria-hidden="true" />
             <div>
               <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">
                 Relatorios
               </p>
-              <h2 className="text-2xl font-bold tracking-tight text-slate-950">
+              <h2 className="text-xl font-bold tracking-tight text-slate-950 sm:text-2xl">
                 Resultado da operacao
               </h2>
             </div>
