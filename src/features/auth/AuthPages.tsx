@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import { Chrome, Loader2, LockKeyhole, UserPlus, Utensils } from 'lucide-react'
 
 import { Button, Panel, StatusBadge } from '../../components/ui'
-import { adminCredential } from '../../auth/demoAuth'
 import { formatCpf, formatStudentRa } from '../../utils/documents'
 
 interface LoginPageProps {
@@ -109,12 +108,6 @@ export function LoginPage({ errorMessage, onLogin, onGoogleLogin }: LoginPagePro
           Entrar
         </Button>
       </form>
-
-      <div className="mt-5 rounded-lg border border-blue-100 bg-blue-50 p-4 text-sm text-blue-950">
-        <p className="font-bold">Acesso administrativo de demonstracao</p>
-        <p className="mt-1">E-mail: {adminCredential.email}</p>
-        <p>Senha: {adminCredential.password}</p>
-      </div>
 
       <p className="mt-5 text-center text-sm text-slate-600">
         Ainda nao possui cadastro?{' '}
