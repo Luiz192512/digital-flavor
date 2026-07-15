@@ -41,10 +41,17 @@ export interface StudentAccount {
   cpf: string
 }
 
-export const adminCredential = {
-  email: 'admin@digitalflavor.com',
-  password: 'Admin@2026'
-} as const
+// O login de administrador via credencial local é uma conveniência apenas de
+// desenvolvimento. O ramo `import.meta.env.DEV` é substituído por `false` em
+// builds de produção, então o Vite elimina este objeto (e a senha) do bundle
+// público. Em produção o papel de admin deve vir do Supabase
+// (app_metadata.role === 'admin').
+export const demoAdminCredential = import.meta.env.DEV
+  ? {
+      email: 'admin@digitalflavor.com',
+      password: import.meta.env.VITE_DEMO_ADMIN_PASSWORD ?? 'Admin@2026'
+    }
+  : null
 
 const studentsKey = 'rapidinha-students'
 const sessionKey = 'rapidinha-session'
@@ -118,13 +125,14 @@ export function authenticateUser(email: string, password: string) {
   const normalizedEmail = normalizeEmail(email)
 
   if (
-    normalizedEmail === adminCredential.email &&
-    password === adminCredential.password
+    demoAdminCredential &&
+    normalizedEmail === demoAdminCredential.email &&
+    password === demoAdminCredential.password
   ) {
     return {
       role: 'admin',
       name: 'Administrador Rapidinha',
-      email: adminCredential.email
+      email: demoAdminCredential.email
     } satisfies AuthSession
   }
 

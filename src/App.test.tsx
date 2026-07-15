@@ -4,7 +4,11 @@ import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 import App from './App'
-import { adminCredential } from './auth/demoAuth'
+import { demoAdminCredential } from './auth/demoAuth'
+
+// Em modo de teste o Vite define import.meta.env.DEV = true, então a credencial
+// de admin de desenvolvimento está sempre disponível aqui.
+const adminCredential = demoAdminCredential!
 
 const technicalTerms = [/CRUD/i, /FIFO/i, /Queue/i, /Pilha/i, /ODS/i, /3s/i, /estrutura de dados/i]
 const validRa = '12345678-9'
@@ -71,7 +75,7 @@ describe('Rapidinha app', () => {
     await user.type(screen.getByLabelText(/Senha/i), adminCredential.password)
     await user.click(screen.getByRole('button', { name: /^Entrar$/i }))
 
-    expect(screen.getByText(/Luiz Gustavo Lorencone Enz/i)).toBeInTheDocument()
+    expect(await screen.findByText(/Luiz Gustavo Lorencone Enz/i)).toBeInTheDocument()
     expect(screen.queryByText(/Aluno Rapidinha/i)).not.toBeInTheDocument()
   })
 
