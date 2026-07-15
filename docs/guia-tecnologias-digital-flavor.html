@@ -1,0 +1,1455 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Guia de Tecnologias - Digital Flavor</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 15mm 13mm;
+    }
+
+    :root {
+      color-scheme: light;
+      --green: #15803d;
+      --blue: #1d4ed8;
+      --orange: #ea580c;
+      --red: #b91c1c;
+      --ink: #111827;
+      --muted: #475569;
+      --line: #dbe3ee;
+      --soft: #f8fafc;
+      --panel: #ffffff;
+      --code: #0f172a;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: white;
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-size: 10.4pt;
+      line-height: 1.58;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      margin: 0;
+      line-height: 1.18;
+      color: #0f172a;
+    }
+
+    h1 {
+      font-size: 34pt;
+      letter-spacing: -0.02em;
+    }
+
+    h2 {
+      margin-top: 22px;
+      padding-top: 6px;
+      border-top: 2px solid var(--line);
+      font-size: 20pt;
+    }
+
+    h3 {
+      margin-top: 18px;
+      font-size: 14pt;
+    }
+
+    h4 {
+      margin-top: 14px;
+      font-size: 11.5pt;
+    }
+
+    p {
+      margin: 8px 0;
+    }
+
+    ul,
+    ol {
+      margin: 8px 0 8px 20px;
+      padding: 0;
+    }
+
+    li {
+      margin: 3px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 9.3pt;
+      page-break-inside: avoid;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--line);
+      padding: 7px 8px;
+      vertical-align: top;
+    }
+
+    th {
+      color: #0f172a;
+      background: #eef5ff;
+      text-align: left;
+      font-weight: 700;
+    }
+
+    code {
+      padding: 1px 4px;
+      border-radius: 4px;
+      background: #eef2f7;
+      color: #0f172a;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 9.2pt;
+    }
+
+    pre {
+      margin: 9px 0 13px;
+      padding: 11px 12px;
+      border-radius: 8px;
+      border: 1px solid #1e293b;
+      background: var(--code);
+      color: #e5eefb;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 8.4pt;
+      line-height: 1.42;
+      white-space: pre-wrap;
+      word-break: break-word;
+      page-break-inside: avoid;
+    }
+
+    .cover {
+      min-height: 95vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 24px 0 12px;
+      page-break-after: always;
+    }
+
+    .cover-band {
+      border-left: 9px solid var(--green);
+      padding: 24px 0 24px 26px;
+    }
+
+    .eyebrow {
+      margin-bottom: 14px;
+      color: var(--orange);
+      font-size: 12pt;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .subtitle {
+      max-width: 630px;
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 14pt;
+      line-height: 1.5;
+    }
+
+    .cover-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 28px;
+      max-width: 680px;
+    }
+
+    .meta-card,
+    .callout,
+    .note,
+    .flow,
+    .tech-card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--panel);
+      page-break-inside: avoid;
+    }
+
+    .meta-card {
+      padding: 12px 14px;
+    }
+
+    .meta-label {
+      color: var(--muted);
+      font-size: 8.5pt;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .meta-value {
+      margin-top: 3px;
+      font-size: 11pt;
+      font-weight: 700;
+    }
+
+    .toc {
+      page-break-after: always;
+    }
+
+    .toc h2 {
+      border-top: 0;
+      margin-top: 0;
+    }
+
+    .toc-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px 16px;
+      margin-top: 14px;
+    }
+
+    .toc-item {
+      border-bottom: 1px solid var(--line);
+      padding: 8px 0;
+      font-weight: 700;
+    }
+
+    .section {
+      page-break-before: always;
+    }
+
+    .section:first-of-type {
+      page-break-before: auto;
+    }
+
+    .lead {
+      color: var(--muted);
+      font-size: 11.4pt;
+    }
+
+    .callout {
+      margin: 12px 0;
+      padding: 12px 14px;
+      background: #f0fdf4;
+      border-left: 5px solid var(--green);
+    }
+
+    .note {
+      margin: 12px 0;
+      padding: 12px 14px;
+      background: #fff7ed;
+      border-left: 5px solid var(--orange);
+    }
+
+    .flow {
+      margin: 13px 0;
+      padding: 13px;
+      background: var(--soft);
+    }
+
+    .flow-row {
+      display: grid;
+      grid-template-columns: 1fr 22px 1fr 22px 1fr;
+      align-items: center;
+      gap: 8px;
+      text-align: center;
+      font-size: 9.2pt;
+      font-weight: 700;
+    }
+
+    .flow-box {
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: white;
+    }
+
+    .arrow {
+      color: var(--blue);
+      font-size: 16pt;
+      font-weight: 800;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 12px 0;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      color: #0f172a;
+      background: #eef2ff;
+      font-size: 8.3pt;
+      font-weight: 800;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 13px;
+      align-items: start;
+    }
+
+    .tech-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 12px 0;
+    }
+
+    .tech-card {
+      padding: 11px 12px;
+      background: #ffffff;
+    }
+
+    .tech-card strong {
+      color: #0f172a;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 9pt;
+    }
+
+    .tree {
+      border-color: #cbd5e1;
+      background: #f8fafc;
+      color: #0f172a;
+    }
+
+    .avoid-break {
+      page-break-inside: avoid;
+    }
+
+    .chapter-label {
+      margin-top: 2px;
+      color: var(--blue);
+      font-size: 9pt;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <section class="cover">
+    <div class="cover-band">
+      <div class="eyebrow">Digital Flavor</div>
+      <h1>Guia de Tecnologias do Projeto</h1>
+      <p class="subtitle">
+        Um material didatico para entender todas as principais tecnologias usadas no sistema,
+        onde elas aparecem no codigo e como cada uma participa do funcionamento real da aplicacao.
+      </p>
+      <div class="cover-grid">
+        <div class="meta-card">
+          <div class="meta-label">Projeto</div>
+          <div class="meta-value">Sistema web para pedidos antecipados em cantinas escolares</div>
+        </div>
+        <div class="meta-card">
+          <div class="meta-label">Pasta base</div>
+          <div class="meta-value">C:\Users\forti\Documents\digital-flavor</div>
+        </div>
+        <div class="meta-card">
+          <div class="meta-label">Stack central</div>
+          <div class="meta-value">React, Vite, TypeScript, Tailwind CSS, Supabase e Vercel</div>
+        </div>
+        <div class="meta-card">
+          <div class="meta-label">Gerado em</div>
+          <div class="meta-value">14 de junho de 2026</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <p class="small">
+        Este guia foi montado a partir dos arquivos reais do repositorio: <code>package.json</code>,
+        <code>src/</code>, <code>supabase/</code>, <code>tests/</code>, <code>vite.config.ts</code>,
+        <code>playwright.config.ts</code> e <code>vercel.json</code>.
+      </p>
+    </div>
+  </section>
+
+  <section class="toc">
+    <h2>Sumario</h2>
+    <div class="toc-grid">
+      <div class="toc-item">1. Visao geral da arquitetura</div>
+      <div class="toc-item">2. Estrutura de pastas</div>
+      <div class="toc-item">3. Node.js, npm e scripts</div>
+      <div class="toc-item">4. Vite e entrada da aplicacao</div>
+      <div class="toc-item">5. React, componentes e estado</div>
+      <div class="toc-item">6. React Router</div>
+      <div class="toc-item">7. TypeScript e orientacao a objetos</div>
+      <div class="toc-item">8. Estruturas de dados</div>
+      <div class="toc-item">9. Tailwind CSS, PostCSS e UI</div>
+      <div class="toc-item">10. Autenticacao local e Supabase</div>
+      <div class="toc-item">11. PostgreSQL, migrations e RLS</div>
+      <div class="toc-item">12. Supabase Edge Functions</div>
+      <div class="toc-item">13. Deploy, Analytics e Speed Insights</div>
+      <div class="toc-item">14. Testes, qualidade e comandos</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>1. Visao Geral Da Arquitetura</h2>
+    <p class="lead">
+      O Digital Flavor e uma aplicacao web de pagina unica. O navegador carrega o React, o React Router
+      escolhe a tela correta, o <code>App.tsx</code> controla o estado principal e as regras de negocio ficam
+      nas classes de dominio. O projeto pode funcionar em modo demonstracao com <code>localStorage</code> ou
+      integrado ao Supabase quando as variaveis de ambiente estao configuradas.
+    </p>
+
+    <div class="flow">
+      <div class="flow-row">
+        <div class="flow-box">Aluno ou admin no navegador</div>
+        <div class="arrow">></div>
+        <div class="flow-box">React Router escolhe a rota</div>
+        <div class="arrow">></div>
+        <div class="flow-box">App.tsx envia dados para features</div>
+      </div>
+      <div class="flow-row" style="margin-top: 10px;">
+        <div class="flow-box">Classes de dominio validam regras</div>
+        <div class="arrow">></div>
+        <div class="flow-box">localStorage ou Supabase guardam dados</div>
+        <div class="arrow">></div>
+        <div class="flow-box">Vercel publica e mede performance</div>
+      </div>
+    </div>
+
+    <h3>Mapa rapido das tecnologias</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Tecnologia</th>
+          <th>Onde aparece</th>
+          <th>Funcao dentro do projeto</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Node.js e npm</td>
+          <td><code>package.json</code>, <code>package-lock.json</code></td>
+          <td>Instalam dependencias e executam scripts de desenvolvimento, teste e build.</td>
+        </tr>
+        <tr>
+          <td>Vite</td>
+          <td><code>vite.config.ts</code></td>
+          <td>Servidor de desenvolvimento, empacotamento final e integracao com Vitest.</td>
+        </tr>
+        <tr>
+          <td>React e React DOM</td>
+          <td><code>src/main.tsx</code>, <code>src/features/</code></td>
+          <td>Renderizam a interface de aluno, autenticacao, conta e painel admin.</td>
+        </tr>
+        <tr>
+          <td>React Router DOM</td>
+          <td><code>src/main.tsx</code>, <code>src/App.tsx</code></td>
+          <td>Controla as paginas <code>/login</code>, <code>/cadastro</code>, <code>/admin</code> e outras rotas.</td>
+        </tr>
+        <tr>
+          <td>TypeScript</td>
+          <td><code>src/**/*.ts</code>, <code>src/**/*.tsx</code>, <code>tsconfig*.json</code></td>
+          <td>Tipa props, entidades, servicos, banco e eventos para reduzir erros.</td>
+        </tr>
+        <tr>
+          <td>Tailwind CSS</td>
+          <td><code>src/styles.css</code>, classes em TSX</td>
+          <td>Cria layout responsivo, cores, espacamentos, cards, botoes e estados visuais.</td>
+        </tr>
+        <tr>
+          <td>PostCSS e Autoprefixer</td>
+          <td><code>postcss.config.js</code></td>
+          <td>Processam CSS e adicionam prefixos de compatibilidade quando necessario.</td>
+        </tr>
+        <tr>
+          <td>clsx</td>
+          <td><code>src/components/ui.tsx</code></td>
+          <td>Combina classes CSS de forma condicional em componentes reutilizaveis.</td>
+        </tr>
+        <tr>
+          <td>lucide-react</td>
+          <td><code>src/features/**</code></td>
+          <td>Fornece icones vetoriais para botoes, status, menu e paineis.</td>
+        </tr>
+        <tr>
+          <td>Supabase JS, Auth e PostgreSQL</td>
+          <td><code>src/lib/</code>, <code>supabase/</code></td>
+          <td>Autenticacao, banco relacional, policies, funcoes e sincronizacao remota.</td>
+        </tr>
+        <tr>
+          <td>Deno e Supabase Edge Functions</td>
+          <td><code>supabase/functions/</code></td>
+          <td>Executam endpoints serverless protegidos por JWT.</td>
+        </tr>
+        <tr>
+          <td>Vercel</td>
+          <td><code>vercel.json</code>, <code>@vercel/*</code></td>
+          <td>Hospeda o front-end, redireciona rotas da SPA e mede analytics/performance.</td>
+        </tr>
+        <tr>
+          <td>Vitest, Testing Library e JSDOM</td>
+          <td><code>src/App.test.tsx</code>, <code>src/domain/domain.test.ts</code></td>
+          <td>Testam componentes, regras de negocio e fluxos sem abrir navegador real.</td>
+        </tr>
+        <tr>
+          <td>Playwright</td>
+          <td><code>playwright.config.ts</code>, <code>tests/e2e/</code></td>
+          <td>Testa a aplicacao em navegadores de verdade, inclusive desktop e mobile.</td>
+        </tr>
+        <tr>
+          <td>ESLint e typescript-eslint</td>
+          <td><code>eslint.config.js</code></td>
+          <td>Fiscalizam padrao de codigo, hooks React e exportacoes seguras para refresh.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="section">
+    <h2>2. Estrutura De Pastas</h2>
+    <p>
+      A organizacao do repositorio separa configuracoes, codigo de interface, dominio, integracao com Supabase,
+      testes e documentacao. Isso facilita explicar a arquitetura porque cada pasta tem responsabilidade clara.
+    </p>
+    <pre class="tree"><code>digital-flavor/
+|-- docs/                         Material de documentacao do projeto
+|-- src/
+|   |-- App.tsx                    Orquestracao de rotas, estado e fluxos
+|   |-- main.tsx                   Entrada React + BrowserRouter + Vercel metrics
+|   |-- styles.css                 Tailwind e variaveis globais
+|   |-- auth/demoAuth.ts           Autenticacao local via localStorage
+|   |-- components/ui.tsx          Button, Panel, StatusBadge, MetricCard
+|   |-- data/seed.ts               Produtos, estoque e pedidos de demonstracao
+|   |-- domain/                    Classes, servicos e estruturas de dados
+|   |-- features/                  Telas de cliente, admin, conta, auth e layout
+|   |-- lib/                       Supabase client, auth remoto e Edge Functions
+|   |-- theme/                     Mapa de cores/status
+|   |-- utils/                     Formatacao de moeda, CPF e RA
+|   `-- test/setup.ts              Setup dos testes unitarios
+|-- supabase/
+|   |-- migrations/                SQL do banco, tabelas, constraints, RLS
+|   |-- functions/                 Edge Functions em Deno
+|   `-- config.toml                Configuracao local do Supabase
+|-- tests/e2e/                     Testes Playwright
+|-- package.json                   Dependencias e comandos npm
+|-- vite.config.ts                 Vite + Vitest
+|-- playwright.config.ts           Configuracao e2e
+|-- eslint.config.js               Regras de lint
+`-- vercel.json                    Deploy Vercel e rewrite da SPA</code></pre>
+
+    <div class="callout">
+      <strong>Ideia principal:</strong> <code>src/features</code> mostra a aplicacao para o usuario,
+      <code>src/domain</code> guarda as regras de negocio, <code>src/lib</code> conversa com servicos externos
+      e <code>supabase</code> descreve banco, auth e funcoes remotas.
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>3. Node.js, npm E Scripts</h2>
+    <p>
+      Node.js e o ambiente usado para rodar ferramentas de desenvolvimento. O npm le o <code>package.json</code>,
+      instala pacotes e executa scripts padronizados. O projeto define comandos para desenvolvimento, build,
+      lint, teste unitario e teste ponta a ponta.
+    </p>
+    <pre><code>{
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc -b && vite build",
+    "lint": "eslint . --max-warnings=0",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test"
+  }
+}</code></pre>
+
+    <h3>Como isso funciona no nosso projeto</h3>
+    <ul>
+      <li><code>npm run dev</code> sobe o Vite para abrir a aplicacao durante o desenvolvimento.</li>
+      <li><code>npm run build</code> primeiro valida TypeScript com <code>tsc -b</code> e depois gera <code>dist/</code>.</li>
+      <li><code>npm run lint</code> impede warnings de qualidade com <code>--max-warnings=0</code>.</li>
+      <li><code>npm run test</code> roda Vitest para regras e componentes.</li>
+      <li><code>npm run test:e2e</code> abre Playwright e executa fluxos reais no navegador.</li>
+    </ul>
+  </section>
+
+  <section class="section">
+    <h2>4. Vite E Entrada Da Aplicacao</h2>
+    <p>
+      Vite e o bundler/servidor de desenvolvimento. Ele entrega recarregamento rapido em desenvolvimento e gera
+      os arquivos estaticos finais para deploy. O projeto usa o plugin oficial de React.
+    </p>
+    <pre><code>// vite.config.ts
+import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vitest/config'
+
+export default defineConfig({
+  plugins: [react()],
+  test: {
+    css: true,
+    environment: 'jsdom',
+    exclude: ['tests/e2e/**', 'node_modules/**', 'dist/**'],
+    globals: true,
+    setupFiles: './src/test/setup.ts'
+  }
+})</code></pre>
+
+    <h3>Entrada no navegador</h3>
+    <p>
+      O arquivo <code>index.html</code> aponta para <code>/src/main.tsx</code>. Esse arquivo cria a raiz React,
+      liga o roteador e registra as metricas da Vercel.
+    </p>
+    <pre><code>// src/main.tsx
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  &lt;React.StrictMode&gt;
+    &lt;BrowserRouter&gt;
+      &lt;App /&gt;
+      &lt;Analytics /&gt;
+      &lt;SpeedInsights /&gt;
+    &lt;/BrowserRouter&gt;
+  &lt;/React.StrictMode&gt;
+)</code></pre>
+
+    <div class="note">
+      <strong>Por que isso importa:</strong> quase tudo que o usuario ve nasce depois desse ponto.
+      O <code>BrowserRouter</code> envolve o app inteiro, entao todas as telas conseguem usar rotas e navegacao.
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>5. React, Componentes E Estado</h2>
+    <p>
+      React e a biblioteca que monta a interface a partir de componentes. No projeto, cada tela recebe dados por
+      <code>props</code> e dispara callbacks para o <code>App.tsx</code>, que guarda o estado principal da aplicacao.
+    </p>
+
+    <h3>Estado central no App</h3>
+    <pre><code>// src/App.tsx
+const [session, setSession] = useState&lt;AuthSession | undefined&gt;(() =&gt; readSession())
+const [products, setProducts] = useState(() =&gt; seedProducts.map(cloneProduct))
+const [inventory, setInventory] = useState(() =&gt; seedInventory.map(cloneInventoryItem))
+const [cart, setCart] = useState(() =&gt; new Cart())
+const [queue, setQueue] = useState(() =&gt; seedOrders)
+const [preparingOrders, setPreparingOrders] = useState&lt;Order[]&gt;([])
+const [completedOrders, setCompletedOrders] = useState&lt;typeof seedOrders&gt;([])</code></pre>
+
+    <p>
+      Esses estados representam a sessao do usuario, produtos, estoque, carrinho e filas de pedidos. Quando um
+      aluno confirma compra ou um admin chama o proximo pedido, o React atualiza o estado e redesenha a tela.
+    </p>
+
+    <h3>Componente de cliente</h3>
+    <pre><code>// src/features/customer/CustomerOrdering.tsx
+interface CustomerOrderingProps {
+  products: Product[]
+  inventory: InventoryItem[]
+  cartItems: CartItemSnapshot[]
+  cartTotalCents: number
+  pickupTime: string
+  paymentMethod: PaymentMethod
+  onAddProduct: (productId: string) =&gt; void
+  onCheckout: () =&gt; void
+}</code></pre>
+
+    <p>
+      O componente <code>CustomerOrdering</code> nao cria pedido sozinho. Ele mostra cardapio, carrinho, horario
+      de retirada e metodo de pagamento. Quando o usuario clica, ele chama funcoes recebidas do <code>App.tsx</code>.
+    </p>
+
+    <h3>Fluxo real do checkout</h3>
+    <pre><code>// src/App.tsx
+function handleCheckout() {
+  const stockService = new StockService(inventory.map(cloneInventoryItem))
+  const checkout = new CheckoutService(stockService)
+  const order = checkout.createOrder({
+    cart,
+    customerId: session?.email ?? 'cliente-digital-flavor',
+    customerName: session?.name ?? 'Cliente Digital Flavor',
+    paymentMethod,
+    pickupTime
+  })
+
+  order.payment.approve()
+  order.advance('queued')
+  setQueue((current) =&gt; [...current, order])
+  setInventory(stockService.snapshot().map(cloneInventoryItem))
+  setCart(new Cart())
+  setLatestOrderId(order.id)
+}</code></pre>
+
+    <div class="flow">
+      <div class="flow-row">
+        <div class="flow-box">Aluno adiciona item</div>
+        <div class="arrow">></div>
+        <div class="flow-box">Cart valida quantidade</div>
+        <div class="arrow">></div>
+        <div class="flow-box">CheckoutService cria Order</div>
+      </div>
+      <div class="flow-row" style="margin-top: 10px;">
+        <div class="flow-box">Payment e aprovado</div>
+        <div class="arrow">></div>
+        <div class="flow-box">Pedido entra na fila</div>
+        <div class="arrow">></div>
+        <div class="flow-box">Tela mostra posicao e codigo</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>6. React Router</h2>
+    <p>
+      React Router transforma caminhos da URL em telas. O projeto tem rotas para login, cadastro, completar
+      cadastro, recuperar senha, perfil, pagamentos e painel admin. Tambem usa <code>Navigate</code> para proteger
+      telas conforme a sessao.
+    </p>
+    <pre><code>// src/App.tsx
+return (
+  &lt;Routes&gt;
+    &lt;Route path="/" element={studentPage} /&gt;
+    &lt;Route path="/login" element={session ? &lt;Navigate to="/" replace /&gt; : &lt;LoginPage ... /&gt;} /&gt;
+    &lt;Route path="/cadastro" element={session ? &lt;Navigate to="/" replace /&gt; : &lt;RegisterPage ... /&gt;} /&gt;
+    &lt;Route path="/configuracoes" element={studentAccountPage(&lt;AccountSettingsPage ... /&gt;)} /&gt;
+    &lt;Route path="/admin" element={adminPage} /&gt;
+    &lt;Route path="*" element={&lt;Navigate to={session?.role === 'admin' ? '/admin' : '/'} replace /&gt;} /&gt;
+  &lt;/Routes&gt;
+)</code></pre>
+
+    <h3>Como a protecao funciona</h3>
+    <ul>
+      <li>Sem sessao, o usuario vai para <code>/login</code>.</li>
+      <li>Aluno sem RA/CPF completo vai para <code>/completar-cadastro</code>.</li>
+      <li>Admin logado vai para <code>/admin</code>.</li>
+      <li>Rotas desconhecidas voltam para a pagina correta do perfil atual.</li>
+    </ul>
+  </section>
+
+  <section class="section">
+    <h2>7. TypeScript E Orientacao A Objetos</h2>
+    <p>
+      TypeScript adiciona tipos ao JavaScript. No Digital Flavor, ele aparece em tres pontos fortes:
+      tipagem das props dos componentes, contratos de dados vindos do Supabase e classes de dominio orientadas
+      a objetos.
+    </p>
+
+    <h3>Classe Product</h3>
+    <pre><code>// src/domain/Product.ts
+export class Product {
+  readonly id: string
+  name: string
+  category: ProductCategory
+  priceCents: number
+  sustainabilityScore: number
+  active: boolean
+
+  constructor(props: ProductProps) {
+    if (props.priceCents &lt; 0) {
+      throw new Error('Product price cannot be negative')
+    }
+
+    this.id = props.id
+    this.name = props.name
+    this.category = props.category
+    this.priceCents = props.priceCents
+    this.sustainabilityScore = Math.max(0, Math.min(100, props.sustainabilityScore))
+    this.active = props.active ?? true
+  }
+
+  updatePrice(priceCents: number) {
+    if (priceCents &lt; 0) throw new Error('Product price cannot be negative')
+    this.priceCents = priceCents
+  }
+}</code></pre>
+
+    <p>
+      Aqui a classe protege regras do produto: preco nao pode ser negativo e pontuacao de sustentabilidade fica
+      entre 0 e 100. A tela admin chama metodos como <code>updatePrice</code>, <code>activate</code> e
+      <code>deactivate</code> em vez de alterar tudo solto.
+    </p>
+
+    <h3>Classe Cart</h3>
+    <pre><code>// src/domain/Cart.ts
+export class Cart {
+  private items = new Map&lt;string, CartItemSnapshot&gt;()
+
+  addProduct(product: Product, quantity: number, stock?: InventoryItem) {
+    this.assertQuantity(quantity)
+    const currentQuantity = this.items.get(product.id)?.quantity ?? 0
+    const nextQuantity = currentQuantity + quantity
+
+    if (stock && nextQuantity &gt; stock.availableQuantity) {
+      throw new Error('Cart quantity exceeds available stock')
+    }
+
+    this.items.set(product.id, this.snapshot(product, nextQuantity))
+  }
+
+  get totalCents() {
+    return this.listItems().reduce((sum, item) =&gt; sum + item.totalCents, 0)
+  }
+}</code></pre>
+
+    <p>
+      O <code>Cart</code> usa <code>Map</code> para indexar itens por produto. Isso evita duplicar o mesmo produto
+      varias vezes e facilita atualizar quantidade e calcular total.
+    </p>
+
+    <h3>Tipos do banco</h3>
+    <pre><code>// src/lib/database.types.ts
+export interface Database {
+  public: {
+    Tables: {
+      products: {
+        Row: {
+          id: string
+          name: string
+          category: 'lanche' | 'bebida' | 'fruta' | 'combo'
+          price_cents: number
+          active: boolean
+        }
+      }
+    }
+  }
+}</code></pre>
+
+    <p>
+      O cliente Supabase usa <code>createClient&lt;Database&gt;</code>. Assim, consultas remotas ficam alinhadas
+      com as tabelas, colunas e enums que existem no PostgreSQL.
+    </p>
+  </section>
+
+  <section class="section">
+    <h2>8. Estruturas De Dados</h2>
+    <p>
+      Alem das bibliotecas externas, o projeto implementa estruturas de dados pedidas no requisito avaliativo:
+      lista, fila FIFO e pilha. Elas estao em <code>src/domain/structures.ts</code> e nos servicos de dominio.
+    </p>
+
+    <h3>Fila FIFO</h3>
+    <pre><code>// src/domain/structures.ts
+export class Queue&lt;T&gt; {
+  private items: T[] = []
+
+  enqueue(item: T) {
+    this.items.push(item)
+  }
+
+  dequeue() {
+    return this.items.shift()
+  }
+
+  peek() {
+    return this.items[0]
+  }
+}</code></pre>
+
+    <p>
+      FIFO significa "first in, first out": o primeiro pedido que entra e o primeiro a ser chamado para preparo.
+      No painel admin, isso aparece quando a cantina clica em <strong>Chamar proximo</strong>.
+    </p>
+
+    <h3>Pilha LIFO</h3>
+    <pre><code>// src/domain/structures.ts
+export class Stack&lt;T&gt; {
+  private items: T[] = []
+
+  push(item: T) {
+    this.items.push(item)
+  }
+
+  pop() {
+    return this.items.pop()
+  }
+}</code></pre>
+
+    <p>
+      LIFO significa "last in, first out": a ultima alteracao admin e a primeira a ser desfeita. A classe
+      <code>AdminActionHistory</code> usa essa pilha para implementar <strong>Desfazer ultima alteracao</strong>.
+    </p>
+
+    <h3>Servicos que usam as estruturas</h3>
+    <pre><code>// src/domain/services.ts
+export class OrderQueueService {
+  private queue = new Queue&lt;Order&gt;()
+
+  enqueue(order: Order) {
+    order.advance('queued')
+    this.queue.enqueue(order)
+  }
+
+  nextForPreparation() {
+    const order = this.queue.dequeue()
+    if (order) order.advance('preparing')
+    return order
+  }
+}
+
+export class AdminActionHistory {
+  private stack = new Stack&lt;AdminAction&gt;()
+
+  record(action: AdminAction) {
+    this.stack.push(action)
+  }
+
+  undoLast() {
+    const action = this.stack.pop()
+    if (action) action.undo()
+    return action
+  }
+}</code></pre>
+  </section>
+
+  <section class="section">
+    <h2>9. Tailwind CSS, PostCSS E UI</h2>
+    <p>
+      Tailwind CSS permite estilizar diretamente no JSX com classes utilitarias. O projeto usa essa abordagem
+      para criar telas responsivas de aluno e admin sem arquivos CSS separados para cada componente.
+    </p>
+
+    <h3>Config do Tailwind</h3>
+    <pre><code>// tailwind.config.ts
+export default {
+  content: ['./index.html', './src/**/*.{ts,tsx}'],
+  theme: {
+    extend: {}
+  },
+  plugins: []
+} satisfies Config</code></pre>
+
+    <p>
+      A propriedade <code>content</code> diz ao Tailwind onde procurar classes. Por isso, classes escritas em
+      <code>src/features/**/*.tsx</code> entram no CSS final.
+    </p>
+
+    <h3>CSS global</h3>
+    <pre><code>// src/styles.css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-brand-green: #16a34a;
+  --color-brand-blue: #2563eb;
+  --color-brand-orange: #f97316;
+  --color-brand-red: #dc2626;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+}</code></pre>
+
+    <h3>Componente Button com clsx</h3>
+    <pre><code>// src/components/ui.tsx
+const buttonVariantClass = {
+  primary: 'bg-orange-500 text-white hover:bg-orange-600',
+  secondary: 'bg-blue-600 text-white hover:bg-blue-700',
+  quiet: 'border border-slate-200 bg-white text-slate-700',
+  danger: 'bg-red-600 text-white hover:bg-red-700'
+}
+
+export function Button({ className, variant = 'primary', ...props }) {
+  return (
+    &lt;button
+      className={clsx(
+        'inline-flex min-h-10 items-center justify-center gap-2 rounded-md px-4',
+        buttonVariantClass[variant],
+        className
+      )}
+      {...props}
+    /&gt;
+  )
+}</code></pre>
+
+    <p>
+      <code>clsx</code> junta classes fixas, classes por variante e classes extras recebidas pelo componente.
+      Isso evita repetir o mesmo conjunto de estilos em todos os botoes.
+    </p>
+
+    <h3>lucide-react</h3>
+    <pre><code>// src/features/customer/CustomerOrdering.tsx
+import { Clock, Minus, Plus, ShoppingBag, WalletCards } from 'lucide-react'
+
+&lt;Button type="button" disabled={cartItems.length === 0} onClick={onCheckout}&gt;
+  &lt;WalletCards size={18} aria-hidden="true" /&gt;
+  Confirmar pedido
+&lt;/Button&gt;</code></pre>
+
+    <p>
+      A biblioteca <code>lucide-react</code> fornece icones prontos como componentes React. Eles melhoram a leitura
+      visual de acoes como adicionar, pagar, voltar, salvar e acompanhar status.
+    </p>
+
+    <h3>PostCSS e Autoprefixer</h3>
+    <pre><code>// postcss.config.js
+export default {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {}
+  }
+}</code></pre>
+
+    <p>
+      PostCSS executa plugins sobre o CSS. O Tailwind gera as classes utilitarias e o Autoprefixer adiciona
+      prefixos de compatibilidade para navegadores quando necessario.
+    </p>
+  </section>
+
+  <section class="section">
+    <h2>10. Autenticacao Local E Supabase</h2>
+    <p>
+      O projeto tem duas formas de autenticacao. Em modo demonstracao, ele usa <code>localStorage</code> no navegador.
+      Em ambiente com variaveis de Supabase, ele usa <code>@supabase/supabase-js</code> para login com senha,
+      Google OAuth, redefinicao de senha e sessao persistente.
+    </p>
+
+    <h3>Cliente Supabase</h3>
+    <pre><code>// src/lib/supabase.ts
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+
+export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey)
+
+export const supabase = isSupabaseConfigured
+  ? createClient&lt;Database&gt;(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true
+      }
+    })
+  : null</code></pre>
+
+    <p>
+      As variaveis <code>VITE_SUPABASE_URL</code> e <code>VITE_SUPABASE_ANON_KEY</code> ficam no ambiente.
+      Se nao existirem, <code>supabase</code> vira <code>null</code> e a aplicacao continua funcionando localmente.
+    </p>
+
+    <h3>Auth local com localStorage</h3>
+    <pre><code>// src/auth/demoAuth.ts
+const studentsKey = 'digital-flavor-students'
+const sessionKey = 'digital-flavor-session'
+
+export function registerStudentAccount(account: StudentAccount) {
+  const email = normalizeEmail(account.email)
+  const existing = readStudentAccounts().filter((student) =&gt; student.email !== email)
+  const nextAccount = { ...account, email, name: account.name.trim() }
+
+  if (canUseStorage()) {
+    window.localStorage.setItem(studentsKey, JSON.stringify([...existing, nextAccount]))
+  }
+
+  return nextAccount
+}</code></pre>
+
+    <p>
+      Esse modo facilita apresentacao e teste sem depender de internet ou banco configurado. Ele guarda contas,
+      sessao, preferencias e metodos de pagamento no navegador.
+    </p>
+
+    <h3>Login remoto com Supabase Auth</h3>
+    <pre><code>// src/lib/auth.ts
+export async function signInWithPassword(email: string, password: string) {
+  if (!supabase) {
+    throw new Error('Supabase is not configured')
+  }
+
+  return supabase.auth.signInWithPassword({ email, password })
+}
+
+export async function signInWithGoogle() {
+  return supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${window.location.origin}/auth/callback`
+    }
+  })
+}</code></pre>
+
+    <h3>Como o App escolhe o modo</h3>
+    <pre><code>// src/App.tsx
+const shouldUseSupabaseCustomerPasswordAuth =
+  isSupabaseConfigured &&
+  (import.meta.env.PROD || import.meta.env.VITE_SUPABASE_PASSWORD_AUTH === 'true')</code></pre>
+
+    <ul>
+      <li>Admin de demonstracao usa credencial local <code>admin@digitalflavor.com</code>.</li>
+      <li>Aluno pode cadastrar no modo local sem Supabase.</li>
+      <li>Em producao ou com flag especifica, aluno usa Supabase Auth por senha.</li>
+      <li>Login Google sempre depende de Supabase configurado.</li>
+    </ul>
+  </section>
+
+  <section class="section">
+    <h2>11. PostgreSQL, Migrations E Row Level Security</h2>
+    <p>
+      O Supabase usa PostgreSQL como banco relacional. As migrations em <code>supabase/migrations</code> criam
+      tipos, tabelas, constraints, indices, dados iniciais e policies de seguranca.
+    </p>
+
+    <h3>Tipos e tabelas principais</h3>
+    <pre><code>// supabase/migrations/20260604225344_initial_digital_flavor_schema.sql
+create type public.app_role as enum ('customer', 'employee', 'manager', 'admin');
+create type public.product_category as enum ('lanche', 'bebida', 'fruta', 'combo');
+create type public.order_status as enum (
+  'draft', 'submitted', 'queued', 'preparing', 'ready', 'completed', 'cancelled'
+);
+create type public.payment_method as enum ('pix', 'card', 'cash');
+
+create table public.products (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  category public.product_category not null,
+  price_cents integer not null check (price_cents &gt;= 0),
+  active boolean not null default true
+);</code></pre>
+
+    <h3>Modelo de dados</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Tabela</th>
+          <th>Representa</th>
+          <th>Relacao com o sistema</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>profiles</code></td>
+          <td>Usuarios e perfis</td>
+          <td>Define aluno, funcionario, gerente ou admin.</td>
+        </tr>
+        <tr>
+          <td><code>products</code></td>
+          <td>Cardapio</td>
+          <td>Mostra produtos para aluno e permite gestao pelo admin.</td>
+        </tr>
+        <tr>
+          <td><code>inventory</code></td>
+          <td>Estoque</td>
+          <td>Controla quantidade, reservas, ponto de reposicao e validade.</td>
+        </tr>
+        <tr>
+          <td><code>orders</code></td>
+          <td>Pedidos</td>
+          <td>Guarda status, cliente, horario, codigo de retirada e total.</td>
+        </tr>
+        <tr>
+          <td><code>order_items</code></td>
+          <td>Itens do pedido</td>
+          <td>Relaciona pedido com produtos comprados.</td>
+        </tr>
+        <tr>
+          <td><code>payments</code></td>
+          <td>Pagamentos</td>
+          <td>Registra metodo, status e valor.</td>
+        </tr>
+        <tr>
+          <td><code>stock_movements</code></td>
+          <td>Movimentacao de estoque</td>
+          <td>Audita reserva, consumo, reposicao e ajustes.</td>
+        </tr>
+        <tr>
+          <td><code>customer_preferences</code></td>
+          <td>Preferencias do aluno</td>
+          <td>Guarda turno, sala, horario padrao e notificacoes.</td>
+        </tr>
+        <tr>
+          <td><code>customer_payment_methods</code></td>
+          <td>Metodos de pagamento</td>
+          <td>Guarda PIX, cartao ou dinheiro preferido do cliente.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Row Level Security</h3>
+    <p>
+      RLS e a seguranca por linha do PostgreSQL. Ela impede que um usuario leia ou altere dados que nao pertencem
+      a ele, a menos que tenha perfil de equipe/admin.
+    </p>
+    <pre><code>// Exemplo de policy
+create policy "orders_select_owner_or_staff"
+on public.orders
+for select
+to authenticated
+using (
+  customer_id = (select auth.uid())
+  or exists (
+    select 1 from public.profiles staff_profile
+    where staff_profile.id = (select auth.uid())
+      and staff_profile.role in ('employee', 'manager', 'admin')
+  )
+);</code></pre>
+
+    <p>
+      Na pratica: o aluno ve os proprios pedidos. Funcionarios, gerentes e admins podem ver pedidos para operar
+      a fila da cantina.
+    </p>
+
+    <h3>Constraints de RA e CPF</h3>
+    <pre><code>// supabase/migrations/20260607202957_add_student_documents.sql
+alter table public.profiles
+  add column if not exists student_ra text,
+  add column if not exists cpf text;
+
+alter table public.profiles
+  add constraint profiles_student_ra_format
+  check (student_ra is null or student_ra ~ '^[0-9]{8}-[0-9]$');</code></pre>
+
+    <p>
+      A regra de documento existe em duas camadas: a interface valida RA/CPF antes de cadastrar, e o banco tambem
+      protege o formato quando os dados chegam ao Supabase.
+    </p>
+  </section>
+
+  <section class="section">
+    <h2>12. Supabase Edge Functions</h2>
+    <p>
+      Edge Functions sao funcoes serverless do Supabase. Elas rodam em Deno, recebem requisicoes HTTP e podem
+      usar o token do usuario para consultar o Supabase de forma segura.
+    </p>
+
+    <h3>Invocacao no front-end</h3>
+    <pre><code>// src/lib/edgeFunctions.ts
+export async function saveCustomerExperience(payload: CustomerExperiencePayload) {
+  if (!supabase) {
+    return { synced: false, reason: 'Supabase is not configured' }
+  }
+
+  const { error } = await supabase.functions.invoke('customer-preferences', {
+    body: payload
+  })
+
+  if (error) {
+    return { synced: false, reason: error.message }
+  }
+
+  return { synced: true }
+}</code></pre>
+
+    <h3>Funcao customer-preferences</h3>
+    <pre><code>// supabase/functions/customer-preferences/index.ts
+Deno.serve(async (req) =&gt; {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
+
+  const supabase = getSupabaseClient(req)
+  const { data: { user }, error: userError } = await supabase.auth.getUser()
+
+  if (userError || !user) {
+    return jsonResponse({ error: 'Sessao invalida.' }, 401)
+  }
+
+  const body = await req.json()
+  await supabase.from('customer_preferences').upsert({
+    profile_id: user.id,
+    phone: body.profile?.phone ?? '',
+    default_pickup_time: body.preferences?.defaultPickupTime ?? '10:30'
+  })
+
+  return jsonResponse({ ok: true })
+})</code></pre>
+
+    <h3>CORS compartilhado</h3>
+    <pre><code>// supabase/functions/_shared/cors.ts
+export const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'
+}</code></pre>
+
+    <p>
+      O CORS permite que o front-end hospedado na Vercel chame as funcoes do Supabase. O projeto tambem configura
+      <code>verify_jwt = true</code> em <code>supabase/config.toml</code>, exigindo sessao valida.
+    </p>
+  </section>
+
+  <section class="section">
+    <h2>13. Deploy, Analytics E Speed Insights</h2>
+    <p>
+      O projeto esta preparado para deploy na Vercel. Como e uma SPA, qualquer rota do navegador precisa voltar
+      para <code>index.html</code>, e o React Router decide qual tela exibir.
+    </p>
+
+    <h3>Configuracao da Vercel</h3>
+    <pre><code>// vercel.json
+{
+  "framework": "vite",
+  "installCommand": "npm install",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}</code></pre>
+
+    <h3>Metricas no React</h3>
+    <pre><code>// src/main.tsx
+import { Analytics } from '@vercel/analytics/react'
+import { SpeedInsights } from '@vercel/speed-insights/react'
+
+&lt;BrowserRouter&gt;
+  &lt;App /&gt;
+  &lt;Analytics /&gt;
+  &lt;SpeedInsights /&gt;
+&lt;/BrowserRouter&gt;</code></pre>
+
+    <ul>
+      <li><code>@vercel/analytics</code> coleta informacoes de uso e acesso.</li>
+      <li><code>@vercel/speed-insights</code> mede indicadores de performance percebidos pelo usuario.</li>
+      <li><code>rewrites</code> evita erro 404 quando o usuario abre diretamente <code>/admin</code> ou <code>/login</code>.</li>
+      <li>As variaveis <code>VITE_SUPABASE_URL</code> e <code>VITE_SUPABASE_ANON_KEY</code> devem existir no ambiente da Vercel para o Supabase remoto funcionar.</li>
+    </ul>
+  </section>
+
+  <section class="section">
+    <h2>14. Testes, Qualidade E Comandos</h2>
+    <p>
+      O projeto usa camadas diferentes de validacao: TypeScript para tipos, ESLint para padrao de codigo, Vitest
+      para testes de componentes/regras e Playwright para fluxo real no navegador.
+    </p>
+
+    <h3>Vitest + Testing Library + user-event</h3>
+    <pre><code>// src/App.test.tsx
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router-dom'
+import { describe, expect, it } from 'vitest'
+
+it('registers a client, creates an order, and shows the client position', async () =&gt; {
+  const user = userEvent.setup()
+  render(
+    &lt;MemoryRouter initialEntries={['/cadastro']}&gt;
+      &lt;App /&gt;
+    &lt;/MemoryRouter&gt;
+  )
+
+  await user.type(screen.getByLabelText(/Nome completo/i), 'Aluno Teste')
+  await user.click(screen.getByRole('button', { name: /Cadastrar e entrar/i }))
+  expect(await screen.findByRole('heading', { name: /Cardapio para o intervalo/i }))
+    .toBeInTheDocument()
+})</code></pre>
+
+    <p>
+      <code>Testing Library</code> testa a tela como o usuario enxerga: labels, botoes e textos. <code>user-event</code>
+      simula digitacao e clique. <code>jest-dom</code> adiciona matchers como <code>toBeInTheDocument()</code>.
+      <code>JSDOM</code> cria um DOM falso para rodar esses testes no Node.
+    </p>
+
+    <h3>Playwright</h3>
+    <pre><code>// playwright.config.ts
+export default defineConfig({
+  testDir: './tests/e2e',
+  use: {
+    baseURL: 'http://127.0.0.1:5173',
+    trace: 'on-first-retry'
+  },
+  webServer: {
+    command: 'npm run dev -- --port 5173',
+    url: 'http://127.0.0.1:5173',
+    reuseExistingServer: !process.env.CI
+  },
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'mobile-chrome', use: { ...devices['Pixel 7'] } }
+  ]
+})</code></pre>
+
+    <p>
+      Playwright abre a aplicacao de verdade, preenche formulario, clica em botoes e valida a navegacao.
+      O projeto testa fluxo de aluno e fluxo de admin em desktop e mobile.
+    </p>
+
+    <h3>ESLint</h3>
+    <pre><code>// eslint.config.js
+export default tseslint.config(
+  { ignores: ['dist', 'coverage', 'playwright-report', 'node_modules'] },
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
+  {
+    files: ['**/*.{ts,tsx}'],
+    plugins: {
+      'react-hooks': reactHooks,
+      'react-refresh': reactRefresh
+    },
+    rules: {
+      ...reactHooks.configs.recommended.rules,
+      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }]
+    }
+  }
+)</code></pre>
+
+    <h3>Comandos para validar</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Comando</th>
+          <th>O que valida</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>npm run lint</code></td>
+          <td>Padrao de codigo, regras TypeScript, regras de hooks React e refresh.</td>
+        </tr>
+        <tr>
+          <td><code>npm run test</code></td>
+          <td>Testes unitarios/de componentes no Vitest.</td>
+        </tr>
+        <tr>
+          <td><code>npm run build</code></td>
+          <td>Compilacao TypeScript e bundle Vite final em <code>dist/</code>.</td>
+        </tr>
+        <tr>
+          <td><code>npm run test:e2e</code></td>
+          <td>Fluxos reais de usuario no Playwright.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="section">
+    <h2>Resumo Para Explicar O Projeto</h2>
+    <p>
+      O Digital Flavor usa React para interface, React Router para navegacao, TypeScript para seguranca de tipos,
+      classes de dominio para regras de negocio, Tailwind para visual responsivo, Supabase para autenticacao,
+      banco PostgreSQL e funcoes remotas, Vercel para deploy e ferramentas de teste para garantir que aluno e
+      admin consigam cumprir os principais fluxos.
+    </p>
+
+    <div class="tech-grid">
+      <div class="tech-card">
+        <strong>Aluno</strong>
+        <p>Entra ou cadastra, completa RA/CPF, escolhe itens, define horario e pagamento, confirma pedido e acompanha posicao.</p>
+      </div>
+      <div class="tech-card">
+        <strong>Admin</strong>
+        <p>Entra no painel, chama pedidos por ordem de chegada, marca preparo, entrega, edita estoque, preco e disponibilidade.</p>
+      </div>
+      <div class="tech-card">
+        <strong>Dominio</strong>
+        <p>Classes como <code>Product</code>, <code>Cart</code>, <code>Order</code>, <code>Payment</code> e <code>InventoryItem</code> concentram regras.</p>
+      </div>
+      <div class="tech-card">
+        <strong>Dados</strong>
+        <p>Modo demo usa <code>localStorage</code>. Modo remoto usa Supabase Auth, PostgreSQL, RLS e Edge Functions.</p>
+      </div>
+    </div>
+
+    <h3>Frase final pronta</h3>
+    <p>
+      "Nosso projeto combina uma interface moderna em React com regras de negocio bem separadas em TypeScript,
+      banco seguro no Supabase e deploy na Vercel. Assim, o aluno faz o pedido antecipado, a cantina organiza a
+      fila e o estoque, e os testes garantem que os fluxos principais continuem funcionando."
+    </p>
+  </section>
+</body>
+</html>

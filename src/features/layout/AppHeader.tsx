@@ -9,10 +9,10 @@ import {
   ShieldCheck,
   ShoppingCart,
   User,
-  UserCircle,
-  Utensils
+  UserCircle
 } from 'lucide-react'
 
+import rapidinhaLogo from '../../assets/rapidinha-logo.png'
 import { Button, StatusBadge } from '../../components/ui'
 
 export type HeaderRole = 'student' | 'admin'
@@ -38,16 +38,15 @@ export function AppHeader({
   return (
     <header className="sticky top-0 z-30 border-b border-brand-line bg-white/95 backdrop-blur">
       <div className="mx-auto grid max-w-7xl grid-cols-[1fr_auto] items-center gap-2 px-4 py-2.5 sm:gap-3 sm:px-5 sm:py-4 lg:flex lg:justify-between">
-        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-red text-white sm:h-11 sm:w-11">
-            <Utensils size={20} className="sm:size-[22px]" aria-hidden="true" />
-          </div>
-          <div className="min-w-0">
-            <p className="truncate text-base font-bold tracking-tight text-brand-ink sm:text-lg">
-              Rapidinha
-            </p>
+        <div className="flex min-w-0 items-center gap-3">
+          <img
+            src={rapidinhaLogo}
+            alt="Rapidinha"
+            className="h-14 w-24 shrink-0 object-contain sm:h-16 sm:w-28"
+          />
+          <div className="hidden min-w-0 sm:block">
             <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-muted sm:text-xs">
-              Pedidos e retirada
+              Pedidos rapidos na cantina
             </p>
           </div>
         </div>

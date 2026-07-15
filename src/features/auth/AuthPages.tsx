@@ -1,7 +1,8 @@
 import type { FormEvent, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { Chrome, Loader2, LockKeyhole, UserPlus, Utensils } from 'lucide-react'
+import { Chrome, Loader2, LockKeyhole, UserPlus } from 'lucide-react'
 
+import rapidinhaLogo from '../../assets/rapidinha-logo.png'
 import { Button, Panel, StatusBadge } from '../../components/ui'
 import { formatCpf, formatStudentRa } from '../../utils/documents'
 
@@ -472,8 +473,12 @@ function AuthLayout({
       <Panel className="mx-auto flex max-w-5xl flex-col overflow-hidden lg:grid lg:grid-cols-[0.95fr_1.05fr]">
         <section className="order-2 flex min-h-0 flex-col gap-5 bg-gradient-to-br from-brand-wine via-brand-red to-brand-red-dark p-5 text-white sm:p-6 lg:order-none lg:min-h-[620px] lg:justify-between lg:p-8">
           <div>
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/15 ring-1 ring-white/25 lg:h-12 lg:w-12">
-              <Utensils size={22} aria-hidden="true" />
+            <div className="w-full max-w-[17rem] rounded-xl bg-white p-3 shadow-sm ring-1 ring-white/35">
+              <img
+                src={rapidinhaLogo}
+                alt="Rapidinha"
+                className="h-auto w-full rounded-lg object-contain"
+              />
             </div>
             <h1 className="mt-4 max-w-md text-2xl font-bold tracking-tight lg:mt-8 lg:text-4xl">
               Rapidinha
