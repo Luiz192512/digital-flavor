@@ -38,6 +38,7 @@ export interface Database {
           active?: boolean
           updated_at?: string
         }
+        Relationships: []
       }
       canteen_staff: {
         Row: {
@@ -55,6 +56,7 @@ export interface Database {
         Update: {
           role?: 'employee' | 'manager'
         }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -85,6 +87,7 @@ export interface Database {
           role?: 'customer' | 'employee' | 'manager' | 'admin'
           updated_at?: string
         }
+        Relationships: []
       }
       products: {
         Row: {
@@ -124,6 +127,7 @@ export interface Database {
           canteen_id?: string
           updated_at?: string
         }
+        Relationships: []
       }
       inventory: {
         Row: {
@@ -151,6 +155,7 @@ export interface Database {
           expires_at?: string | null
           updated_at?: string
         }
+        Relationships: []
       }
       orders: {
         Row: {
@@ -186,6 +191,7 @@ export interface Database {
           payment_status?: 'pending' | 'approved' | 'refused' | 'refunded'
           updated_at?: string
         }
+        Relationships: []
       }
       order_items: {
         Row: {
@@ -209,6 +215,7 @@ export interface Database {
           created_at?: string
         }
         Update: never
+        Relationships: []
       }
       payments: {
         Row: {
@@ -236,6 +243,7 @@ export interface Database {
           provider_reference?: string | null
           updated_at?: string
         }
+        Relationships: []
       }
       stock_movements: {
         Row: {
@@ -257,6 +265,7 @@ export interface Database {
           created_at?: string
         }
         Update: never
+        Relationships: []
       }
       customer_preferences: {
         Row: {
@@ -291,6 +300,7 @@ export interface Database {
           default_pickup_time?: string
           updated_at?: string
         }
+        Relationships: []
       }
       customer_payment_methods: {
         Row: {
@@ -323,7 +333,11 @@ export interface Database {
           active?: boolean
           updated_at?: string
         }
+        Relationships: []
       }
+    }
+    Views: {
+      [_ in never]: never
     }
     Functions: {
       checkout: {
@@ -332,12 +346,18 @@ export interface Database {
           p_pickup_time: string
           p_payment_method: 'pix' | 'card' | 'cash'
         }
-        Returns: Array<{
+        Returns: {
           order_id: string
           pickup_code: string
           total_cents: number
-        }>
+        }[]
       }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
     }
   }
 }

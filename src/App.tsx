@@ -49,7 +49,10 @@ import {
 } from './features/auth/AuthPages'
 import { AppHeader } from './features/layout/AppHeader'
 import type { ProductAdjustmentDraft } from './features/management/ManagementWorkspace'
+import { fetchCatalog } from './lib/catalog'
+import { submitCheckout } from './lib/checkoutApi'
 import { saveCustomerExperience } from './lib/edgeFunctions'
+import { subscribeInventory } from './lib/realtimeInventory'
 import {
   exchangeAuthCodeForSession,
   sendPasswordResetEmail,
@@ -189,6 +192,9 @@ export default function App() {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('pix')
   const [latestOrderId, setLatestOrderId] = useState<string>()
   const [errorMessage, setErrorMessage] = useState<string>()
+  // Modo de dados reais: catálogo/estoque vieram do Supabase (não do seed).
+  const [isSupabaseData, setIsSupabaseData] = useState(false)
+  const [serverOrder, setServerOrder] = useState<{ id: string; pickupCode: string }>()
   const [customerProfile, setCustomerProfile] = useState<CustomerProfileDetails>(() =>
     defaultCustomerProfile(session)
   )
@@ -307,6 +313,71 @@ export default function App() {
     )
   }, [session])
 
+  // Fase 1 (dados reais): com sessão Supabase ativa, o catálogo e o estoque
+  // vêm do Postgres e o estoque assina o Realtime. Sem Supabase (modo demo)
+  // ou sem catálogo no banco, o seed local permanece como fallback.
+  useEffect(() => {
+    if (!supabase || !session) {
+      return undefined
+    }
+
+    let active = true
+
+    async function loadCatalog() {
+      const { data } = await supabase!.auth.getSession()
+
+      if (!active || !data.session) {
+        return
+      }
+
+      try {
+        const catalog = await fetchCatalog()
+
+        if (active && catalog) {
+          setProducts(catalog.products)
+          setInventory(catalog.inventory)
+          setIsSupabaseData(true)
+        }
+      } catch {
+        // Falha de rede/RLS: mantém o seed local e o fluxo demo.
+      }
+    }
+
+    void loadCatalog()
+
+    // Fallback de consistência quando o Realtime não entrega (ex.: projeto
+    // recém-restaurado): ao voltar o foco para a aba, recarrega o catálogo.
+    function handleVisibility() {
+      if (document.visibilityState === 'visible') {
+        void loadCatalog()
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibility)
+
+    const unsubscribe = subscribeInventory((change) => {
+      setInventory((current) =>
+        current.map((item) =>
+          item.productId === change.productId
+            ? new InventoryItem({
+                productId: change.productId,
+                quantity: change.quantity,
+                reserved: change.reserved,
+                reorderPoint: item.reorderPoint,
+                expiresAt: item.expiresAt
+              })
+            : item
+        )
+      )
+    })
+
+    return () => {
+      active = false
+      document.removeEventListener('visibilitychange', handleVisibility)
+      unsubscribe()
+    }
+  }, [session])
+
   const activeProducts = useMemo(() => products.filter((product) => product.active), [products])
   const cartItems = cart.listItems()
   const salesCents = [...queue, ...preparingOrders, ...completedOrders].reduce(
@@ -325,6 +396,16 @@ export default function App() {
     ) as Record<string, ProductAdjustmentDraft>
   }, [productAdjustments, products])
   const customerOrderStatus = useMemo(() => {
+    if (serverOrder && latestOrderId === serverOrder.id) {
+      return {
+        headerLabel: 'Pedido confirmado',
+        title: 'Na fila',
+        detail: 'Pedido confirmado na cantina. Apresente o codigo na retirada.',
+        code: serverOrder.pickupCode,
+        tone: 'info' as const
+      }
+    }
+
     if (!latestOrderId) {
       return {
         headerLabel: `Fila agora ${queue.length}`,
@@ -382,7 +463,7 @@ export default function App() {
       detail: 'Faca seu pedido para acompanhar a posicao de retirada.',
       tone: 'info' as const
     }
-  }, [completedOrders, latestOrderId, preparingOrders, queue])
+  }, [completedOrders, latestOrderId, preparingOrders, queue, serverOrder])
 
   async function handleLogin(email: string, password: string) {
     setLoginError(undefined)
@@ -669,6 +750,14 @@ export default function App() {
     setSession(undefined)
     setCart(new Cart())
     setLatestOrderId(undefined)
+    setServerOrder(undefined)
+
+    if (isSupabaseData) {
+      setIsSupabaseData(false)
+      setProducts(seedProducts.map(cloneProduct))
+      setInventory(seedInventory.map(cloneInventoryItem))
+    }
+
     navigate('/login', { replace: true })
   }
 
@@ -777,8 +866,42 @@ export default function App() {
     }
   }
 
-  function handleCheckout() {
+  async function handleCheckout() {
     setErrorMessage(undefined)
+
+    // Modo de dados reais: o pedido é confirmado pela RPC atômica no
+    // Postgres (preço/estoque decididos no servidor); o estoque local
+    // atualiza pelo Realtime.
+    if (isSupabaseData) {
+      try {
+        const result = await submitCheckout(
+          cart.listItems().map((item) => ({ productId: item.productId, quantity: item.quantity })),
+          pickupTime,
+          paymentMethod
+        )
+
+        setServerOrder({ id: result.orderId, pickupCode: result.pickupCode })
+        setLatestOrderId(result.orderId)
+        setCart(new Cart())
+
+        // Fallback do Realtime: garante estoque atualizado após a compra.
+        try {
+          const catalog = await fetchCatalog()
+
+          if (catalog) {
+            setInventory(catalog.inventory)
+          }
+        } catch {
+          // Estoque atualizara pelo Realtime ou no proximo foco da aba.
+        }
+      } catch (error) {
+        setErrorMessage(
+          error instanceof Error ? error.message : 'Nao foi possivel confirmar o pedido.'
+        )
+      }
+
+      return
+    }
 
     try {
       const stockService = new StockService(inventory.map(cloneInventoryItem))
