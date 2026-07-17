@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
 import {
-  adminCredential,
+  demoAdminCredential,
   authenticateUser,
   clearSession,
   defaultCustomerPreferences,
@@ -48,10 +48,7 @@ import {
   UpdatePasswordPage
 } from './features/auth/AuthPages'
 import { AppHeader } from './features/layout/AppHeader'
-import {
-  ManagementWorkspace,
-  type ProductAdjustmentDraft
-} from './features/management/ManagementWorkspace'
+import type { ProductAdjustmentDraft } from './features/management/ManagementWorkspace'
 import { saveCustomerExperience } from './lib/edgeFunctions'
 import {
   exchangeAuthCodeForSession,
@@ -141,7 +138,7 @@ function sessionFromSupabaseUser(user: {
     role,
     name: typeof metadataName === 'string' && metadataName.trim()
       ? metadataName
-      : email.split('@')[0] || 'Cliente Digital Flavor',
+      : email.split('@')[0] || 'Cliente Rapidinha',
     email,
     studentRa: typeof metadataStudentRa === 'string' ? metadataStudentRa : undefined,
     cpf: typeof metadataCpf === 'string' ? metadataCpf : undefined
@@ -151,6 +148,14 @@ function sessionFromSupabaseUser(user: {
 const shouldUseSupabaseCustomerPasswordAuth =
   isSupabaseConfigured &&
   (import.meta.env.PROD || import.meta.env.VITE_SUPABASE_PASSWORD_AUTH === 'true')
+
+// Painel de gestão só é usado na rota /admin; carregado sob demanda para não
+// pesar no bundle inicial da rota pública de clientes.
+const ManagementWorkspace = lazy(() =>
+  import('./features/management/ManagementWorkspace').then((module) => ({
+    default: module.ManagementWorkspace
+  }))
+)
 
 function hasCompleteStudentDocuments(authSession?: AuthSession) {
   if (!authSession || authSession.role !== 'student') {
@@ -383,7 +388,7 @@ export default function App() {
     setLoginError(undefined)
     const normalizedEmail = email.trim().toLowerCase()
 
-    if (normalizedEmail === adminCredential.email) {
+    if (demoAdminCredential && normalizedEmail === demoAdminCredential.email) {
       const result = authenticateUser(email, password)
 
       if ('error' in result) {
@@ -780,8 +785,8 @@ export default function App() {
       const checkout = new CheckoutService(stockService)
       const order = checkout.createOrder({
         cart,
-        customerId: session?.email ?? 'cliente-digital-flavor',
-        customerName: session?.name ?? 'Cliente Digital Flavor',
+        customerId: session?.email ?? 'cliente-rapidinha',
+        customerName: session?.name ?? 'Cliente Rapidinha',
         paymentMethod,
         pickupTime
       })
@@ -1055,28 +1060,34 @@ export default function App() {
         userName={session.name}
         onLogout={handleLogout}
       />
-      <ManagementWorkspace
-        products={products}
-        inventory={inventory}
-        queue={queue}
-        preparingOrders={preparingOrders}
-        completedOrders={completedOrders}
-        salesCents={salesCents}
-        adminHistory={adminHistory}
-        productDraft={productDraft}
-        productAdjustments={productAdjustmentDrafts}
-        onProductDraftChange={setProductDraft}
-        onProductAdjustmentChange={handleProductAdjustmentChange}
-        onTakeNextOrder={handleTakeNextOrder}
-        onMarkReady={handleMarkReady}
-        onCompleteOrder={handleCompleteOrder}
-        onAdjustStock={handleAdjustStock}
-        onSaveProductPrice={handleSaveProductPrice}
-        onDeactivateProduct={handleDeactivateProduct}
-        onActivateProduct={handleActivateProduct}
-        onCreateProduct={handleCreateProduct}
-        onUndoLast={handleUndoLast}
-      />
+      <Suspense
+        fallback={
+          <div className="px-6 py-12 text-center text-sm text-slate-500">Carregando painel de gestao...</div>
+        }
+      >
+        <ManagementWorkspace
+          products={products}
+          inventory={inventory}
+          queue={queue}
+          preparingOrders={preparingOrders}
+          completedOrders={completedOrders}
+          salesCents={salesCents}
+          adminHistory={adminHistory}
+          productDraft={productDraft}
+          productAdjustments={productAdjustmentDrafts}
+          onProductDraftChange={setProductDraft}
+          onProductAdjustmentChange={handleProductAdjustmentChange}
+          onTakeNextOrder={handleTakeNextOrder}
+          onMarkReady={handleMarkReady}
+          onCompleteOrder={handleCompleteOrder}
+          onAdjustStock={handleAdjustStock}
+          onSaveProductPrice={handleSaveProductPrice}
+          onDeactivateProduct={handleDeactivateProduct}
+          onActivateProduct={handleActivateProduct}
+          onCreateProduct={handleCreateProduct}
+          onUndoLast={handleUndoLast}
+        />
+      </Suspense>
     </main>
   ) : (
     <Navigate to={session?.role === 'student' ? '/' : '/login'} replace />

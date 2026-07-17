@@ -7,13 +7,13 @@ type ButtonVariant = 'primary' | 'secondary' | 'quiet' | 'danger'
 
 const buttonVariantClass: Record<ButtonVariant, string> = {
   primary:
-    'bg-orange-500 text-white shadow-sm shadow-orange-500/20 hover:bg-orange-600 focus-visible:outline-orange-500',
+    'bg-brand-red text-white shadow-sm shadow-brand-red/20 hover:bg-brand-red-dark focus-visible:outline-brand-red',
   secondary:
-    'bg-blue-600 text-white shadow-sm shadow-blue-600/20 hover:bg-blue-700 focus-visible:outline-blue-600',
+    'bg-brand-wine text-white shadow-sm shadow-brand-wine/20 hover:bg-brand-red-dark focus-visible:outline-brand-wine',
   quiet:
-    'border border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50 focus-visible:outline-slate-400',
+    'border border-brand-line bg-white text-brand-muted hover:border-brand-red/30 hover:bg-brand-paper focus-visible:outline-brand-muted',
   danger:
-    'bg-red-600 text-white shadow-sm shadow-red-600/20 hover:bg-red-700 focus-visible:outline-red-600'
+    'bg-brand-red-dark text-white shadow-sm shadow-brand-red/20 hover:bg-brand-wine focus-visible:outline-brand-red-dark'
 }
 
 export function Button({
@@ -40,7 +40,7 @@ export function Panel({
   return (
     <section
       className={clsx(
-        'rounded-lg border border-slate-200 bg-white shadow-sm shadow-slate-200/60',
+        'rounded-lg border border-brand-line bg-white shadow-sm shadow-brand',
         className
       )}
       {...props}
@@ -98,10 +98,10 @@ export function ProgressBar({
   tone?: Extract<StatusTone, 'success' | 'info' | 'warning' | 'danger'>
 }) {
   const colorClass = {
-    success: 'bg-green-500',
-    info: 'bg-blue-600',
-    warning: 'bg-orange-500',
-    danger: 'bg-red-600'
+    success: 'bg-brand-red',
+    info: 'bg-brand-wine',
+    warning: 'bg-brand-gold',
+    danger: 'bg-brand-red-dark'
   }[tone]
 
   return (
@@ -113,4 +113,3 @@ export function ProgressBar({
     </div>
   )
 }
-

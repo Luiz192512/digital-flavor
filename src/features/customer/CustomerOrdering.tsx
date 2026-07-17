@@ -59,7 +59,7 @@ export function CustomerOrdering({
           <div className="border-b border-slate-200 bg-white p-4 sm:p-5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-wide text-orange-600">
+                <p className="text-sm font-semibold uppercase tracking-wide text-brand-red">
                   Pedido antecipado
                 </p>
                 <h1 className="mt-1 text-xl font-bold tracking-tight text-slate-950 sm:text-2xl">
@@ -90,9 +90,9 @@ export function CustomerOrdering({
               return (
                 <article
                   key={product.id}
-                  className="grid min-h-0 grid-cols-[76px_1fr] gap-3 rounded-lg border border-slate-200 bg-white p-3 shadow-sm transition hover:border-orange-200 hover:shadow-md sm:min-h-[200px] sm:grid-cols-[92px_1fr] sm:gap-4 sm:p-4"
+                  className="grid min-h-0 grid-cols-[76px_1fr] gap-3 rounded-lg border border-brand-line bg-white p-3 shadow-sm transition hover:border-brand-red/30 hover:shadow-md sm:min-h-[200px] sm:grid-cols-[92px_1fr] sm:gap-4 sm:p-4"
                 >
-                  <div className="flex h-20 w-full items-center justify-center rounded-lg bg-gradient-to-br from-green-50 via-white to-orange-50 text-3xl sm:h-full sm:text-4xl">
+                  <div className="flex h-20 w-full items-center justify-center rounded-lg bg-gradient-to-br from-brand-red-soft via-white to-brand-gold/25 text-3xl sm:h-full sm:text-4xl">
                     {product.category === 'bebida'
                       ? '🥤'
                       : product.category === 'fruta'
@@ -150,7 +150,7 @@ export function CustomerOrdering({
       <aside className={`space-y-4 sm:space-y-5 xl:sticky xl:top-28 xl:h-fit ${cartItems.length > 0 ? 'order-first xl:order-none' : ''}`}>
         <Panel className="p-4 sm:p-5">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-100 text-orange-600">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-red-soft text-brand-red">
               <ShoppingBag size={20} aria-hidden="true" />
             </div>
             <div>
@@ -202,7 +202,7 @@ export function CustomerOrdering({
             <label className="grid gap-2 text-sm font-semibold text-slate-700">
               Horario de retirada
               <input
-                className="min-h-10 rounded-md border border-slate-200 px-3 text-slate-700 outline-none focus:border-blue-500"
+                className="min-h-10 rounded-md border border-brand-line px-3 text-slate-700 outline-none focus:border-brand-red"
                 type="time"
                 value={pickupTime}
                 onChange={(event) => onPickupTimeChange(event.target.value)}
@@ -211,7 +211,7 @@ export function CustomerOrdering({
             <label className="grid gap-2 text-sm font-semibold text-slate-700">
               Metodo de pagamento
               <select
-                className="min-h-10 rounded-md border border-slate-200 px-3 text-slate-700 outline-none focus:border-blue-500"
+                className="min-h-10 rounded-md border border-brand-line px-3 text-slate-700 outline-none focus:border-brand-red"
                 value={paymentMethod}
                 onChange={(event) => onPaymentMethodChange(event.target.value as PaymentMethod)}
               >
@@ -244,7 +244,7 @@ export function CustomerOrdering({
         <Panel className="p-4 sm:p-5">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <Clock className="text-blue-600" aria-hidden="true" />
+              <Clock className="text-brand-wine" aria-hidden="true" />
               <div>
                 <h2 className="font-bold text-slate-950">Meu pedido</h2>
                 <p className="text-sm text-slate-500">Acompanhamento de retirada</p>
@@ -252,7 +252,7 @@ export function CustomerOrdering({
             </div>
             <StatusBadge tone={orderStatus.tone}>{orderStatus.title}</StatusBadge>
           </div>
-          <div className="mt-4 rounded-lg bg-blue-50 p-4 text-sm text-blue-900">
+          <div className="mt-4 rounded-lg bg-brand-cool-soft p-4 text-sm text-brand-wine">
             <p>{orderStatus.detail}</p>
             {orderStatus.code ? (
               <p className="mt-2 font-semibold">Codigo de retirada: {orderStatus.code}</p>

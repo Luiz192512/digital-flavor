@@ -1,6 +1,6 @@
 import { createClient } from 'jsr:@supabase/supabase-js@2'
 
-import { corsHeaders, jsonResponse } from '../_shared/cors.ts'
+import { corsHeadersFor, jsonResponse } from '../_shared/cors.ts'
 
 function getSupabaseClient(req: Request) {
   return createClient(
@@ -18,11 +18,11 @@ function getSupabaseClient(req: Request) {
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { headers: corsHeadersFor(req) })
   }
 
   if (req.method !== 'GET') {
-    return jsonResponse({ error: 'Metodo nao permitido.' }, 405)
+    return jsonResponse({ error: 'Metodo nao permitido.' }, 405, req)
   }
 
   const supabase = getSupabaseClient(req)
@@ -32,7 +32,7 @@ Deno.serve(async (req) => {
   } = await supabase.auth.getUser()
 
   if (userError || !user) {
-    return jsonResponse({ error: 'Sessao invalida.' }, 401)
+    return jsonResponse({ error: 'Sessao invalida.' }, 401, req)
   }
 
   const { data: latestOrder, error: orderError } = await supabase
@@ -44,7 +44,7 @@ Deno.serve(async (req) => {
     .maybeSingle()
 
   if (orderError) {
-    return jsonResponse({ error: orderError.message }, 400)
+    return jsonResponse({ error: orderError.message }, 400, req)
   }
 
   const { count: queueLength, error: queueError } = await supabase
@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
     .eq('status', 'queued')
 
   if (queueError) {
-    return jsonResponse({ error: queueError.message }, 400)
+    return jsonResponse({ error: queueError.message }, 400, req)
   }
 
   let position: number | null = null
@@ -66,7 +66,7 @@ Deno.serve(async (req) => {
       .lte('created_at', latestOrder.created_at)
 
     if (error) {
-      return jsonResponse({ error: error.message }, 400)
+      return jsonResponse({ error: error.message }, 400, req)
     }
 
     position = count ?? null
@@ -76,5 +76,5 @@ Deno.serve(async (req) => {
     queueLength: queueLength ?? 0,
     latestOrder,
     position
-  })
+  }, 200, req)
 })

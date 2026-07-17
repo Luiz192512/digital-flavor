@@ -1,37 +1,38 @@
 export const brandColors = {
-  green: '#16A34A',
-  blue: '#2563EB',
-  orange: '#F97316',
-  red: '#DC2626',
-  graphite: '#111827',
-  slate: '#64748B',
-  softGray: '#F8FAFC',
-  border: '#E5E7EB',
+  red: '#C82828',
+  redDark: '#A91F26',
+  redSoft: '#F4DDDD',
+  wine: '#741533',
+  gold: '#D8A45D',
+  coolSoft: '#C8D0E8',
+  graphite: '#201C1F',
+  slate: '#6B6568',
+  softGray: '#F7F7F9',
+  border: '#DEDEE4',
   white: '#FFFFFF'
 } as const
 
 export const statusTone = {
   success: {
     label: 'Disponivel',
-    className: 'bg-green-50 text-green-700 ring-green-200'
+    className: 'bg-brand-red-soft text-brand-wine ring-brand-red/20'
   },
   info: {
     label: 'Operacional',
-    className: 'bg-blue-50 text-blue-700 ring-blue-200'
+    className: 'bg-brand-cool-soft text-brand-wine ring-brand-wine/20'
   },
   warning: {
     label: 'Atencao',
-    className: 'bg-orange-50 text-orange-700 ring-orange-200'
+    className: 'bg-brand-gold/25 text-brand-wine ring-brand-gold/45'
   },
   danger: {
     label: 'Critico',
-    className: 'bg-red-50 text-red-700 ring-red-200'
+    className: 'bg-red-50 text-brand-red-dark ring-brand-red/20'
   },
   neutral: {
     label: 'Neutro',
-    className: 'bg-slate-100 text-slate-700 ring-slate-200'
+    className: 'bg-brand-paper text-brand-muted ring-brand-line'
   }
 } as const
 
 export type StatusTone = keyof typeof statusTone
-

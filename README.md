@@ -1,6 +1,6 @@
-# Digital Flavor
+# Rapidinha
 
-Sistema web para pedidos antecipados e gestao sustentavel de cantinas escolares.
+Sistema web para pedidos antecipados, retirada organizada e gestao sustentavel de cantinas escolares.
 
 ## Stack
 
@@ -16,7 +16,7 @@ Sistema web para pedidos antecipados e gestao sustentavel de cantinas escolares.
 - Modelagem orientada a objetos em `src/domain`.
 - Estruturas de dados: lista, fila FIFO e pilha.
 - Proposta de valor: reduzir filas, controlar estoque e diminuir desperdicio de alimentos.
-- Estudo das cores aplicado ao design: verde para sustentabilidade, azul para operacao, laranja para acao/compra e vermelho para risco.
+- Estudo das cores aplicado ao design: vermelho como cor principal, vinho para identidade, cinza claro para superficies e dourado como apoio.
 
 ## Como rodar
 
@@ -67,3 +67,19 @@ O projeto inclui `vercel.json` para build Vite:
 - build command: `npm run build`
 - output directory: `dist`
 - environment variables: `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY`
+
+## Deploy no GitHub Pages
+
+O site esta publicado em:
+
+```text
+https://luiz192512.github.io/rapidinha/
+```
+
+Para gerar o build com o caminho correto do GitHub Pages:
+
+```bash
+npm run build:github-pages
+```
+
+O GitHub Pages usa a branch `gh-pages` como origem estatica do site.

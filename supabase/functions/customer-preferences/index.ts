@@ -1,6 +1,6 @@
 import { createClient } from 'jsr:@supabase/supabase-js@2'
 
-import { corsHeaders, jsonResponse } from '../_shared/cors.ts'
+import { corsHeadersFor, jsonResponse } from '../_shared/cors.ts'
 
 type PaymentMethod = 'pix' | 'card' | 'cash'
 
@@ -44,7 +44,7 @@ function getSupabaseClient(req: Request) {
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { headers: corsHeadersFor(req) })
   }
 
   const supabase = getSupabaseClient(req)
@@ -54,7 +54,7 @@ Deno.serve(async (req) => {
   } = await supabase.auth.getUser()
 
   if (userError || !user) {
-    return jsonResponse({ error: 'Sessao invalida.' }, 401)
+    return jsonResponse({ error: 'Sessao invalida.' }, 401, req)
   }
 
   if (req.method === 'GET') {
@@ -73,11 +73,11 @@ Deno.serve(async (req) => {
       profile,
       preferences,
       paymentMethods: paymentMethods ?? []
-    })
+    }, 200, req)
   }
 
   if (req.method !== 'POST') {
-    return jsonResponse({ error: 'Metodo nao permitido.' }, 405)
+    return jsonResponse({ error: 'Metodo nao permitido.' }, 405, req)
   }
 
   const body = (await req.json()) as PreferencesPayload
@@ -98,7 +98,7 @@ Deno.serve(async (req) => {
       .eq('id', user.id)
 
     if (error) {
-      return jsonResponse({ error: error.message }, 400)
+      return jsonResponse({ error: error.message }, 400, req)
     }
   }
 
@@ -117,7 +117,7 @@ Deno.serve(async (req) => {
     })
 
   if (preferencesError) {
-    return jsonResponse({ error: preferencesError.message }, 400)
+    return jsonResponse({ error: preferencesError.message }, 400, req)
   }
 
   if (Array.isArray(body.paymentMethods)) {
@@ -139,7 +139,7 @@ Deno.serve(async (req) => {
       .eq('profile_id', user.id)
 
     if (deleteError) {
-      return jsonResponse({ error: deleteError.message }, 400)
+      return jsonResponse({ error: deleteError.message }, 400, req)
     }
 
     if (paymentRows.length > 0) {
@@ -148,10 +148,10 @@ Deno.serve(async (req) => {
         .insert(paymentRows)
 
       if (insertError) {
-        return jsonResponse({ error: insertError.message }, 400)
+        return jsonResponse({ error: insertError.message }, 400, req)
       }
     }
   }
 
-  return jsonResponse({ ok: true, updatedAt: now })
+  return jsonResponse({ ok: true, updatedAt: now }, 200, req)
 })

@@ -49,14 +49,14 @@ export function AccountSettingsPage({
     <AccountContent
       eyebrow="Configuracoes"
       title="Preferencias da conta"
-      description="Defina como o Digital Flavor deve preparar sua experiencia de compra."
-      icon={<Settings className="text-blue-700" aria-hidden="true" />}
+      description="Defina como o Rapidinha deve preparar sua experiencia de compra."
+      icon={<Settings className="text-brand-wine" aria-hidden="true" />}
     >
       <form className="grid gap-5" onSubmit={handleSubmit}>
         <label className="grid gap-2 text-sm font-semibold text-slate-700">
           Horario padrao de retirada
           <input
-            className="min-h-11 rounded-md border border-slate-200 px-3 outline-none focus:border-blue-500"
+            className="min-h-11 rounded-md border border-brand-line px-3 outline-none focus:border-brand-red"
             name="defaultPickupTime"
             type="time"
             defaultValue={preferences.defaultPickupTime}
@@ -120,13 +120,13 @@ export function ProfileDetailsPage({
       eyebrow="Dados do perfil"
       title="Informacoes do cliente"
       description="Mantenha seus dados atualizados para a cantina identificar seu pedido."
-      icon={<User className="text-green-600" aria-hidden="true" />}
+      icon={<User className="text-brand-red" aria-hidden="true" />}
     >
       <form className="grid gap-4 sm:grid-cols-2" onSubmit={handleSubmit}>
         <label className="grid gap-2 text-sm font-semibold text-slate-700 sm:col-span-2">
           Nome completo
           <input
-            className="min-h-11 rounded-md border border-slate-200 px-3 outline-none focus:border-blue-500"
+            className="min-h-11 rounded-md border border-brand-line px-3 outline-none focus:border-brand-red"
             name="name"
             defaultValue={profile.name}
             required
@@ -159,7 +159,7 @@ export function ProfileDetailsPage({
         <label className="grid gap-2 text-sm font-semibold text-slate-700">
           Telefone
           <input
-            className="min-h-11 rounded-md border border-slate-200 px-3 outline-none focus:border-blue-500"
+            className="min-h-11 rounded-md border border-brand-line px-3 outline-none focus:border-brand-red"
             name="phone"
             defaultValue={profile.phone}
             placeholder="(00) 00000-0000"
@@ -168,7 +168,7 @@ export function ProfileDetailsPage({
         <label className="grid gap-2 text-sm font-semibold text-slate-700">
           Turma
           <input
-            className="min-h-11 rounded-md border border-slate-200 px-3 outline-none focus:border-blue-500"
+            className="min-h-11 rounded-md border border-brand-line px-3 outline-none focus:border-brand-red"
             name="classroom"
             defaultValue={profile.classroom}
             placeholder="Ex.: 3A"
@@ -177,7 +177,7 @@ export function ProfileDetailsPage({
         <label className="grid gap-2 text-sm font-semibold text-slate-700">
           Periodo
           <select
-            className="min-h-11 rounded-md border border-slate-200 px-3 outline-none focus:border-blue-500"
+            className="min-h-11 rounded-md border border-brand-line px-3 outline-none focus:border-brand-red"
             name="shift"
             defaultValue={profile.shift}
           >
@@ -236,7 +236,7 @@ export function PaymentMethodsPage({
       eyebrow="Metodos de pagamento"
       title="Como voce prefere pagar"
       description="Escolha o metodo padrao para acelerar a confirmacao do pedido."
-      icon={<CreditCard className="text-orange-600" aria-hidden="true" />}
+      icon={<CreditCard className="text-brand-gold" aria-hidden="true" />}
     >
       <div className="grid gap-3">
         {paymentMethods.map((method) => (
@@ -268,7 +268,7 @@ export function PaymentMethodsPage({
         <label className="grid gap-2 text-sm font-semibold text-slate-700">
           Nova chave PIX
           <input
-            className="min-h-11 rounded-md border border-slate-200 px-3 outline-none focus:border-blue-500"
+            className="min-h-11 rounded-md border border-brand-line px-3 outline-none focus:border-brand-red"
             name="pixKey"
             placeholder="E-mail, telefone ou chave aleatoria"
           />
@@ -298,12 +298,12 @@ function AccountContent({
     <section className="mx-auto max-w-5xl px-4 py-4 sm:px-5 sm:py-6">
       <div className="mb-4 flex flex-col gap-3 sm:mb-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">{eyebrow}</p>
+          <p className="text-sm font-semibold uppercase tracking-wide text-brand-red">{eyebrow}</p>
           <h1 className="text-xl font-bold tracking-tight text-slate-950 sm:text-2xl">{title}</h1>
           <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
         </div>
         <Link
-          className="inline-flex w-fit rounded-md bg-orange-50 px-3 py-2 text-sm font-bold text-orange-700 underline-offset-2 hover:bg-orange-100 sm:bg-transparent sm:px-0 sm:py-0 sm:text-orange-600 sm:underline"
+          className="inline-flex w-fit rounded-md bg-brand-red-soft px-3 py-2 text-sm font-bold text-brand-wine underline-offset-2 hover:bg-brand-gold/25 sm:bg-transparent sm:px-0 sm:py-0 sm:text-brand-red sm:underline"
           to="/"
         >
           Voltar ao cardapio
@@ -311,7 +311,7 @@ function AccountContent({
       </div>
 
       <Panel className="p-4 sm:p-5">
-        <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-slate-50 ring-1 ring-slate-200 sm:mb-5">
+        <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-brand-paper ring-1 ring-brand-line sm:mb-5">
           {icon}
         </div>
         {children}
@@ -335,13 +335,13 @@ function PreferenceToggle({
 }) {
   return (
     <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-200 p-3 sm:p-4">
-      <span className="mt-1 text-blue-700">{icon}</span>
+      <span className="mt-1 text-brand-wine">{icon}</span>
       <span className="min-w-0 flex-1">
         <span className="block font-bold text-slate-950">{title}</span>
         <span className="mt-1 block text-sm leading-6 text-slate-500">{detail}</span>
       </span>
       <input
-        className="mt-1 h-5 w-5 accent-blue-600"
+        className="mt-1 h-5 w-5 accent-brand-red"
         type="checkbox"
         name={name}
         defaultChecked={checked}

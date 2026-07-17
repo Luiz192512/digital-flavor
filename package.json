@@ -1,11 +1,12 @@
 {
-  "name": "digital-flavor",
+  "name": "rapidinha",
   "private": true,
   "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "tsc -b && vite build",
+    "build:github-pages": "tsc -b && vite build --base=/rapidinha/",
     "lint": "eslint . --max-warnings=0",
     "test": "vitest run",
     "test:watch": "vitest",

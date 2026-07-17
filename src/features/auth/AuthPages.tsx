@@ -1,7 +1,8 @@
 import type { FormEvent, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { Chrome, Loader2, LockKeyhole, UserPlus, Utensils } from 'lucide-react'
+import { Chrome, Loader2, LockKeyhole, UserPlus } from 'lucide-react'
 
+import rapidinhaLogo from '../../assets/rapidinha-logo.png'
 import { Button, Panel, StatusBadge } from '../../components/ui'
 import { formatCpf, formatStudentRa } from '../../utils/documents'
 
@@ -51,7 +52,7 @@ export function LoginPage({ errorMessage, onLogin, onGoogleLogin }: LoginPagePro
 
   return (
     <AuthLayout
-      title="Entrar no Digital Flavor"
+      title="Entrar no Rapidinha"
       description="Acesse sua conta para comprar no intervalo ou administrar a cantina."
     >
       <Button type="button" variant="quiet" className="mb-4 w-full" onClick={onGoogleLogin}>
@@ -69,7 +70,7 @@ export function LoginPage({ errorMessage, onLogin, onGoogleLogin }: LoginPagePro
         <label className="grid gap-2 text-sm font-semibold text-slate-700">
           E-mail
           <input
-            className="min-h-11 rounded-md border border-slate-200 px-3 outline-none focus:border-blue-500"
+            className="min-h-11 rounded-md border border-brand-line px-3 outline-none focus:border-brand-red"
             name="email"
             type="email"
             autoComplete="email"
@@ -80,12 +81,12 @@ export function LoginPage({ errorMessage, onLogin, onGoogleLogin }: LoginPagePro
         <label className="grid gap-2 text-sm font-semibold text-slate-700">
           <span className="flex items-center justify-between gap-3">
             Senha
-            <Link className="text-xs font-bold text-orange-600 underline" to="/recuperar-senha">
+            <Link className="text-xs font-bold text-brand-red underline" to="/recuperar-senha">
               Esqueci minha senha
             </Link>
           </span>
           <input
-            className="min-h-11 rounded-md border border-slate-200 px-3 outline-none focus:border-blue-500"
+            className="min-h-11 rounded-md border border-brand-line px-3 outline-none focus:border-brand-red"
             name="password"
             type="password"
             autoComplete="current-password"
@@ -111,7 +112,7 @@ export function LoginPage({ errorMessage, onLogin, onGoogleLogin }: LoginPagePro
 
       <p className="mt-5 text-center text-sm text-slate-600">
         Ainda nao possui cadastro?{' '}
-        <Link className="font-bold text-orange-600 underline" to="/cadastro">
+        <Link className="font-bold text-brand-red underline" to="/cadastro">
           Criar conta
         </Link>
       </p>
@@ -152,7 +153,7 @@ export function RegisterPage({ errorMessage, onRegister, onGoogleLogin }: Regist
         <label className="grid gap-2 text-sm font-semibold text-slate-700">
           Nome completo
           <input
-            className="min-h-11 rounded-md border border-slate-200 px-3 outline-none focus:border-blue-500"
+            className="min-h-11 rounded-md border border-brand-line px-3 outline-none focus:border-brand-red"
             name="name"
             autoComplete="name"
             placeholder="Nome completo"
@@ -162,7 +163,7 @@ export function RegisterPage({ errorMessage, onRegister, onGoogleLogin }: Regist
         <label className="grid gap-2 text-sm font-semibold text-slate-700">
           RA
           <input
-            className="min-h-11 rounded-md border border-slate-200 px-3 outline-none focus:border-blue-500"
+            className="min-h-11 rounded-md border border-brand-line px-3 outline-none focus:border-brand-red"
             name="studentRa"
             inputMode="numeric"
             autoComplete="off"
@@ -177,7 +178,7 @@ export function RegisterPage({ errorMessage, onRegister, onGoogleLogin }: Regist
         <label className="grid gap-2 text-sm font-semibold text-slate-700">
           CPF
           <input
-            className="min-h-11 rounded-md border border-slate-200 px-3 outline-none focus:border-blue-500"
+            className="min-h-11 rounded-md border border-brand-line px-3 outline-none focus:border-brand-red"
             name="cpf"
             inputMode="numeric"
             autoComplete="off"
@@ -192,7 +193,7 @@ export function RegisterPage({ errorMessage, onRegister, onGoogleLogin }: Regist
         <label className="grid gap-2 text-sm font-semibold text-slate-700">
           E-mail
           <input
-            className="min-h-11 rounded-md border border-slate-200 px-3 outline-none focus:border-blue-500"
+            className="min-h-11 rounded-md border border-brand-line px-3 outline-none focus:border-brand-red"
             name="email"
             type="email"
             autoComplete="email"
@@ -203,7 +204,7 @@ export function RegisterPage({ errorMessage, onRegister, onGoogleLogin }: Regist
         <label className="grid gap-2 text-sm font-semibold text-slate-700">
           Senha
           <input
-            className="min-h-11 rounded-md border border-slate-200 px-3 outline-none focus:border-blue-500"
+            className="min-h-11 rounded-md border border-brand-line px-3 outline-none focus:border-brand-red"
             name="password"
             type="password"
             autoComplete="new-password"
@@ -227,7 +228,7 @@ export function RegisterPage({ errorMessage, onRegister, onGoogleLogin }: Regist
 
       <p className="mt-5 text-center text-sm text-slate-600">
         Ja possui conta?{' '}
-        <Link className="font-bold text-blue-700 underline" to="/login">
+        <Link className="font-bold text-brand-wine underline" to="/login">
           Voltar para login
         </Link>
       </p>
@@ -260,7 +261,7 @@ export function CompleteRegistrationPage({
         <label className="grid gap-2 text-sm font-semibold text-slate-700">
           RA
           <input
-            className="min-h-11 rounded-md border border-slate-200 px-3 outline-none focus:border-blue-500"
+            className="min-h-11 rounded-md border border-brand-line px-3 outline-none focus:border-brand-red"
             name="studentRa"
             inputMode="numeric"
             autoComplete="off"
@@ -275,7 +276,7 @@ export function CompleteRegistrationPage({
         <label className="grid gap-2 text-sm font-semibold text-slate-700">
           CPF
           <input
-            className="min-h-11 rounded-md border border-slate-200 px-3 outline-none focus:border-blue-500"
+            className="min-h-11 rounded-md border border-brand-line px-3 outline-none focus:border-brand-red"
             name="cpf"
             inputMode="numeric"
             autoComplete="off"
@@ -330,7 +331,7 @@ export function ForgotPasswordPage({
         <label className="grid gap-2 text-sm font-semibold text-slate-700">
           E-mail
           <input
-            className="min-h-11 rounded-md border border-slate-200 px-3 outline-none focus:border-blue-500"
+            className="min-h-11 rounded-md border border-brand-line px-3 outline-none focus:border-brand-red"
             name="email"
             type="email"
             autoComplete="email"
@@ -340,7 +341,7 @@ export function ForgotPasswordPage({
         </label>
 
         {successMessage ? (
-          <div className="rounded-md bg-green-50 px-3 py-2 text-sm font-semibold text-green-700">
+          <div className="rounded-md bg-brand-red-soft px-3 py-2 text-sm font-semibold text-brand-wine">
             {successMessage}
           </div>
         ) : null}
@@ -358,7 +359,7 @@ export function ForgotPasswordPage({
 
       <p className="mt-5 text-center text-sm text-slate-600">
         Lembrou a senha?{' '}
-        <Link className="font-bold text-blue-700 underline" to="/login">
+        <Link className="font-bold text-brand-wine underline" to="/login">
           Voltar para login
         </Link>
       </p>
@@ -389,7 +390,7 @@ export function UpdatePasswordPage({
         <label className="grid gap-2 text-sm font-semibold text-slate-700">
           Nova senha
           <input
-            className="min-h-11 rounded-md border border-slate-200 px-3 outline-none focus:border-blue-500"
+            className="min-h-11 rounded-md border border-brand-line px-3 outline-none focus:border-brand-red"
             name="password"
             type="password"
             autoComplete="new-password"
@@ -401,7 +402,7 @@ export function UpdatePasswordPage({
         <label className="grid gap-2 text-sm font-semibold text-slate-700">
           Confirmar nova senha
           <input
-            className="min-h-11 rounded-md border border-slate-200 px-3 outline-none focus:border-blue-500"
+            className="min-h-11 rounded-md border border-brand-line px-3 outline-none focus:border-brand-red"
             name="confirmation"
             type="password"
             autoComplete="new-password"
@@ -412,7 +413,7 @@ export function UpdatePasswordPage({
         </label>
 
         {successMessage ? (
-          <div className="rounded-md bg-green-50 px-3 py-2 text-sm font-semibold text-green-700">
+          <div className="rounded-md bg-brand-red-soft px-3 py-2 text-sm font-semibold text-brand-wine">
             {successMessage}
           </div>
         ) : null}
@@ -430,7 +431,7 @@ export function UpdatePasswordPage({
 
       <p className="mt-5 text-center text-sm text-slate-600">
         Ja esta tudo certo?{' '}
-        <Link className="font-bold text-orange-600 underline" to="/">
+        <Link className="font-bold text-brand-red underline" to="/">
           Ir para o cardapio
         </Link>
       </p>
@@ -442,15 +443,15 @@ export function OAuthCallbackPage({ errorMessage }: { errorMessage?: string }) {
   return (
     <AuthLayout
       title="Conectando sua conta"
-      description="Estamos finalizando seu acesso para abrir o Digital Flavor."
+      description="Estamos finalizando seu acesso para abrir o Rapidinha."
     >
       {errorMessage ? (
         <div className="rounded-lg border border-red-100 bg-red-50 p-4 text-sm font-semibold text-red-700">
           {errorMessage}
         </div>
       ) : (
-        <div className="flex items-center gap-3 rounded-lg border border-blue-100 bg-blue-50 p-4 text-sm font-semibold text-blue-950">
-          <Loader2 className="animate-spin text-blue-700" size={20} aria-hidden="true" />
+        <div className="flex items-center gap-3 rounded-lg border border-brand-wine/15 bg-brand-cool-soft p-4 text-sm font-semibold text-brand-wine">
+          <Loader2 className="animate-spin text-brand-red" size={20} aria-hidden="true" />
           Aguarde um instante.
         </div>
       )}
@@ -468,22 +469,26 @@ function AuthLayout({
   children: ReactNode
 }) {
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-4 text-slate-950 sm:px-5 sm:py-8">
+    <main className="min-h-screen bg-brand-paper px-4 py-4 text-brand-ink sm:px-5 sm:py-8">
       <Panel className="mx-auto flex max-w-5xl flex-col overflow-hidden lg:grid lg:grid-cols-[0.95fr_1.05fr]">
-        <section className="order-2 flex min-h-0 flex-col gap-5 bg-gradient-to-br from-green-700 via-green-600 to-blue-700 p-5 text-white sm:p-6 lg:order-none lg:min-h-[620px] lg:justify-between lg:p-8">
+        <section className="order-2 flex min-h-0 flex-col gap-5 bg-gradient-to-br from-brand-wine via-brand-red to-brand-red-dark p-5 text-white sm:p-6 lg:order-none lg:min-h-[620px] lg:justify-between lg:p-8">
           <div>
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/15 ring-1 ring-white/25 lg:h-12 lg:w-12">
-              <Utensils size={22} aria-hidden="true" />
+            <div className="w-full max-w-[17rem] rounded-xl bg-white p-3 shadow-sm ring-1 ring-white/35">
+              <img
+                src={rapidinhaLogo}
+                alt="Rapidinha"
+                className="h-auto w-full rounded-lg object-contain"
+              />
             </div>
             <h1 className="mt-4 max-w-md text-2xl font-bold tracking-tight lg:mt-8 lg:text-4xl">
-              Digital Flavor
+              Rapidinha
             </h1>
-            <p className="mt-3 max-w-md text-sm leading-6 text-green-50 lg:mt-4 lg:text-lg lg:leading-8">
+            <p className="mt-3 max-w-md text-sm leading-6 text-brand-red-soft lg:mt-4 lg:text-lg lg:leading-8">
               Pedido antecipado para retirar no intervalo, com controle simples de
               produtos, precos e atendimento da cantina.
             </p>
           </div>
-          <div className="grid gap-2 text-xs text-green-50 sm:text-sm lg:gap-3">
+          <div className="grid gap-2 text-xs text-brand-red-soft sm:text-sm lg:gap-3">
             <p>Compra rapida para quem quer evitar espera.</p>
             <p>Painel de produtos e pedidos para a equipe.</p>
             <p>Status claro do pedido ate a retirada.</p>

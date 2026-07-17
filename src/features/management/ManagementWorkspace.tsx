@@ -98,7 +98,7 @@ export function ManagementWorkspace({
     <section id="admin-panel" className="mx-auto max-w-7xl px-4 py-4 sm:px-5 sm:py-6">
       <div className="mb-4 flex flex-col gap-3 sm:mb-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">
+          <p className="text-sm font-semibold uppercase tracking-wide text-brand-red">
             Painel da cantina
           </p>
           <h1 className="text-xl font-bold tracking-tight text-slate-950 sm:text-2xl">
@@ -112,7 +112,7 @@ export function ManagementWorkspace({
               type="button"
               className={`min-h-10 whitespace-nowrap rounded-md px-2 text-xs font-semibold transition sm:px-4 sm:text-sm ${
                 activeTab === tab
-                  ? 'bg-white text-blue-700 shadow-sm'
+                  ? 'bg-white text-brand-red shadow-sm'
                   : 'text-slate-600 hover:text-slate-950'
               }`}
               onClick={() => setActiveTab(tab)}
@@ -127,7 +127,7 @@ export function ManagementWorkspace({
         <Panel className="p-4 sm:p-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">
+              <p className="text-sm font-semibold uppercase tracking-wide text-brand-red">
                 Ordem de preparo
               </p>
               <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-950 sm:text-2xl">
@@ -150,15 +150,15 @@ export function ManagementWorkspace({
           </div>
 
           <div className="mt-4 grid gap-4 sm:mt-5 xl:grid-cols-[1fr_0.85fr]">
-            <div className="space-y-3 rounded-lg border border-blue-100 bg-blue-50 p-3 sm:p-4">
-              <p className="text-sm font-semibold text-blue-800">Em preparo</p>
+            <div className="space-y-3 rounded-lg border border-brand-wine/15 bg-brand-cool-soft p-3 sm:p-4">
+              <p className="text-sm font-semibold text-brand-wine">Em preparo</p>
               {preparingOrders.length > 0 ? (
                 preparingOrders.map((order) => (
                   <article key={order.id} className="rounded-lg bg-white p-3 shadow-sm sm:p-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                       <div>
-                        <h3 className="text-lg font-bold text-blue-950 sm:text-xl">{order.customerName}</h3>
-                        <p className="text-sm text-blue-800">
+                        <h3 className="text-lg font-bold text-brand-ink sm:text-xl">{order.customerName}</h3>
+                        <p className="text-sm text-brand-wine">
                           Codigo {order.pickupCode} - retirada {order.pickupTime}
                         </p>
                       </div>
@@ -166,7 +166,7 @@ export function ManagementWorkspace({
                         {order.status === 'ready' ? 'Pronto' : 'Em preparo'}
                       </StatusBadge>
                     </div>
-                    <ul className="mt-3 space-y-2 text-sm text-blue-950">
+                    <ul className="mt-3 space-y-2 text-sm text-brand-ink">
                       {order.items.map((item) => (
                         <li key={item.productId} className="flex justify-between gap-3">
                           <span>
@@ -199,7 +199,7 @@ export function ManagementWorkspace({
                   </article>
                 ))
               ) : (
-                <p className="mt-3 text-sm text-blue-800">
+                <p className="mt-3 text-sm text-brand-wine">
                   Nenhum pedido em preparo. Chame o primeiro pedido da lista.
                 </p>
               )}
@@ -238,7 +238,7 @@ export function ManagementWorkspace({
           <Panel className="overflow-hidden">
             <div className="flex flex-col items-start gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-wide text-green-700">
+                <p className="text-sm font-semibold uppercase tracking-wide text-brand-red">
                   Produtos
                 </p>
                 <h2 className="text-xl font-bold tracking-tight text-slate-950 sm:text-2xl">
@@ -294,7 +294,7 @@ export function ManagementWorkspace({
                       <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Preco</p>
                       <div className="mt-2 grid grid-cols-[1fr_auto] gap-2 sm:flex sm:flex-wrap">
                         <input
-                          className="min-h-10 w-full rounded-md border border-slate-200 px-3 outline-none focus:border-blue-500 sm:w-28"
+                          className="min-h-10 w-full rounded-md border border-brand-line px-3 outline-none focus:border-brand-red sm:w-28"
                           value={draft.price}
                           aria-label={`Preco de ${product.name}`}
                           onChange={(event) =>
@@ -342,7 +342,7 @@ export function ManagementWorkspace({
                       <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Quantidade</p>
                       <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-[80px_1fr_1fr]">
                         <input
-                          className="col-span-2 min-h-10 rounded-md border border-slate-200 px-3 outline-none focus:border-blue-500 sm:col-span-1"
+                          className="col-span-2 min-h-10 rounded-md border border-brand-line px-3 outline-none focus:border-brand-red sm:col-span-1"
                           type="number"
                           min="1"
                           value={draft.quantity}
@@ -402,7 +402,7 @@ export function ManagementWorkspace({
           <div className="grid gap-5 lg:grid-cols-2">
             <Panel className="p-4 sm:p-5">
               <div className="flex items-center gap-3">
-                <Plus className="text-green-600" aria-hidden="true" />
+                <Plus className="text-brand-red" aria-hidden="true" />
                 <div>
                   <h2 className="text-lg font-bold text-slate-950">Novo produto</h2>
                   <p className="text-sm text-slate-500">Inclua um item no cardapio da cantina.</p>
@@ -410,19 +410,19 @@ export function ManagementWorkspace({
               </div>
               <form className="mt-4 grid gap-3" onSubmit={submitProduct}>
                 <input
-                  className="min-h-10 rounded-md border border-slate-200 px-3 outline-none focus:border-blue-500"
+                  className="min-h-10 rounded-md border border-brand-line px-3 outline-none focus:border-brand-red"
                   placeholder="Nome do produto"
                   value={productDraft.name}
                   onChange={(event) => onProductDraftChange({ ...productDraft, name: event.target.value })}
                 />
                 <input
-                  className="min-h-10 rounded-md border border-slate-200 px-3 outline-none focus:border-blue-500"
+                  className="min-h-10 rounded-md border border-brand-line px-3 outline-none focus:border-brand-red"
                   placeholder="Preco"
                   value={productDraft.price}
                   onChange={(event) => onProductDraftChange({ ...productDraft, price: event.target.value })}
                 />
                 <select
-                  className="min-h-10 rounded-md border border-slate-200 px-3 outline-none focus:border-blue-500"
+                  className="min-h-10 rounded-md border border-brand-line px-3 outline-none focus:border-brand-red"
                   value={productDraft.category}
                   onChange={(event) =>
                     onProductDraftChange({
@@ -444,7 +444,7 @@ export function ManagementWorkspace({
 
             <Panel className="p-4 sm:p-5">
               <div className="flex items-center gap-3">
-                <History className="text-orange-500" aria-hidden="true" />
+                <History className="text-brand-gold" aria-hidden="true" />
                 <div>
                   <h2 className="text-lg font-bold text-slate-950">Historico de alteracoes</h2>
                   <p className="text-sm text-slate-500">Ultimas mudancas feitas no cardapio.</p>
@@ -470,9 +470,9 @@ export function ManagementWorkspace({
       {activeTab === 'reports' ? (
         <Panel className="p-4 sm:p-5">
           <div className="flex items-center gap-3">
-            <BarChart3 className="text-blue-700" aria-hidden="true" />
+            <BarChart3 className="text-brand-wine" aria-hidden="true" />
             <div>
-              <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">
+              <p className="text-sm font-semibold uppercase tracking-wide text-brand-red">
                 Relatorios
               </p>
               <h2 className="text-xl font-bold tracking-tight text-slate-950 sm:text-2xl">
