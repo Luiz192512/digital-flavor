@@ -3,6 +3,59 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export interface Database {
   public: {
     Tables: {
+      canteens: {
+        Row: {
+          id: string
+          slug: string
+          name: string
+          location: string
+          open_from: string | null
+          open_until: string | null
+          prep_minutes: number
+          active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          slug: string
+          name: string
+          location?: string
+          open_from?: string | null
+          open_until?: string | null
+          prep_minutes?: number
+          active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          slug?: string
+          name?: string
+          location?: string
+          open_from?: string | null
+          open_until?: string | null
+          prep_minutes?: number
+          active?: boolean
+          updated_at?: string
+        }
+      }
+      canteen_staff: {
+        Row: {
+          canteen_id: string
+          profile_id: string
+          role: 'employee' | 'manager'
+          created_at: string
+        }
+        Insert: {
+          canteen_id: string
+          profile_id: string
+          role: 'employee' | 'manager'
+          created_at?: string
+        }
+        Update: {
+          role?: 'employee' | 'manager'
+        }
+      }
       profiles: {
         Row: {
           id: string
@@ -43,6 +96,7 @@ export interface Database {
           preparation_minutes: number
           sustainability_score: number
           active: boolean
+          canteen_id: string
           created_at: string
           updated_at: string
         }
@@ -55,6 +109,7 @@ export interface Database {
           preparation_minutes?: number
           sustainability_score?: number
           active?: boolean
+          canteen_id: string
           created_at?: string
           updated_at?: string
         }
@@ -66,6 +121,7 @@ export interface Database {
           preparation_minutes?: number
           sustainability_score?: number
           active?: boolean
+          canteen_id?: string
           updated_at?: string
         }
       }
@@ -107,6 +163,7 @@ export interface Database {
           total_cents: number
           payment_method: 'pix' | 'card' | 'cash'
           payment_status: 'pending' | 'approved' | 'refused' | 'refunded'
+          canteen_id: string
           created_at: string
           updated_at: string
         }
@@ -120,6 +177,7 @@ export interface Database {
           total_cents: number
           payment_method: 'pix' | 'card' | 'cash'
           payment_status?: 'pending' | 'approved' | 'refused' | 'refunded'
+          canteen_id: string
           created_at?: string
           updated_at?: string
         }
@@ -265,6 +323,20 @@ export interface Database {
           active?: boolean
           updated_at?: string
         }
+      }
+    }
+    Functions: {
+      checkout: {
+        Args: {
+          p_items: Json
+          p_pickup_time: string
+          p_payment_method: 'pix' | 'card' | 'cash'
+        }
+        Returns: Array<{
+          order_id: string
+          pickup_code: string
+          total_cents: number
+        }>
       }
     }
   }
