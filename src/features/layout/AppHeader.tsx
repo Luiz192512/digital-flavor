@@ -12,7 +12,6 @@ import {
   UserCircle
 } from 'lucide-react'
 
-import rapidinhaLogo from '../../assets/rapidinha-logo.png'
 import { Button, StatusBadge } from '../../components/ui'
 
 export type HeaderRole = 'student' | 'admin'
@@ -39,11 +38,9 @@ export function AppHeader({
     <header className="sticky top-0 z-30 border-b border-brand-line bg-white/95 backdrop-blur">
       <div className="mx-auto grid max-w-7xl grid-cols-[1fr_auto] items-center gap-2 px-4 py-2.5 sm:gap-3 sm:px-5 sm:py-4 lg:flex lg:justify-between">
         <div className="flex min-w-0 items-center gap-3">
-          <img
-            src={rapidinhaLogo}
-            alt="Rapidinha"
-            className="h-14 w-24 shrink-0 object-contain sm:h-16 sm:w-28"
-          />
+          <span className="shrink-0 font-display text-[22px] tracking-tight text-brand-red sm:text-[26px]">
+            Rapidinha
+          </span>
           <div className="hidden min-w-0 sm:block">
             <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-muted sm:text-xs">
               Pedidos rapidos na cantina

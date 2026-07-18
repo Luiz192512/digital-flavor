@@ -36,20 +36,23 @@ describe('Rapidinha app', () => {
     await user.type(screen.getByLabelText(/Senha/i), validPassword)
     await user.click(screen.getByRole('button', { name: /Cadastrar e entrar/i }))
 
+    // Marketplace v3: home de descoberta → cardápio da cantina.
+    await user.click(await screen.findByRole('link', { name: /Cantina Central/i }))
+
     expect(
-      await screen.findByRole('heading', { name: /Cardapio para o intervalo/i })
+      await screen.findByRole('heading', { name: /Cantina Central/i })
     ).toBeInTheDocument()
     technicalTerms.forEach((term) => {
       expect(screen.queryByText(term)).not.toBeInTheDocument()
     })
 
-    await user.click(screen.getAllByRole('button', { name: /Adicionar/i })[0])
-    expect(screen.getByText(/Carrinho/i)).toBeInTheDocument()
+    await user.click(screen.getAllByRole('button', { name: /^Adicionar$/i })[0])
+    expect(screen.getByText(/Sua comanda/i)).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: /Confirmar pedido/i }))
 
     expect(screen.getByText(/Sua posicao: 4/i)).toBeInTheDocument()
-    expect(screen.getByText(/Codigo de retirada/i)).toBeInTheDocument()
+    expect(screen.getByText(/Ficha de retirada/i)).toBeInTheDocument()
   })
 
   it('shows the real client name in the admin order list', async () => {
@@ -66,7 +69,8 @@ describe('Rapidinha app', () => {
     await user.type(screen.getByLabelText(/E-mail/i), 'luiz@escola.com')
     await user.type(screen.getByLabelText(/Senha/i), validPassword)
     await user.click(screen.getByRole('button', { name: /Cadastrar e entrar/i }))
-    await user.click(screen.getAllByRole('button', { name: /Adicionar/i })[0])
+    await user.click(await screen.findByRole('link', { name: /Cantina Central/i }))
+    await user.click(screen.getAllByRole('button', { name: /^Adicionar$/i })[0])
     await user.click(screen.getByRole('button', { name: /Confirmar pedido/i }))
 
     await user.click(screen.getByRole('button', { name: /Luiz/i }))
@@ -247,7 +251,7 @@ describe('Rapidinha app', () => {
     await user.click(screen.getByRole('button', { name: /Salvar e acessar/i }))
 
     expect(
-      await screen.findByRole('heading', { name: /Cardapio para o intervalo/i })
+      await screen.findByRole('heading', { name: /onde vai ser o lanche de hoje/i })
     ).toBeInTheDocument()
     expect(window.localStorage.getItem('rapidinha-session')).toContain(validRa)
     expect(window.localStorage.getItem('rapidinha-session')).toContain(validCpf)

@@ -340,6 +340,13 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
+      canteen_queue_sizes: {
+        Args: Record<string, never>
+        Returns: {
+          canteen_id: string
+          queue_size: number
+        }[]
+      }
       adjust_stock: {
         Args: {
           p_product_id: string
