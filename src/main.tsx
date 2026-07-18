@@ -18,6 +18,14 @@ const Router = isRootDeployment ? BrowserRouter : HashRouter
 const isVercelHost =
   typeof window !== 'undefined' && window.location.hostname.endsWith('.vercel.app')
 
+// PWA: registra o service worker apenas no build de produção servido da
+// raiz (Cloudflare/Vercel); em dev e no GitHub Pages (subpath) fica de fora.
+if (import.meta.env.PROD && isRootDeployment && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    void navigator.serviceWorker.register('/sw.js')
+  })
+}
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <Router>
