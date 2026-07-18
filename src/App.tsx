@@ -49,10 +49,20 @@ import {
 } from './features/auth/AuthPages'
 import { AppHeader } from './features/layout/AppHeader'
 import type { ProductAdjustmentDraft } from './features/management/ManagementWorkspace'
+import {
+  adjustStockOnServer,
+  createProductOnServer,
+  fetchActiveOrders,
+  setProductActive,
+  subscribeOrders,
+  updateOrderStatus,
+  updateProductPrice
+} from './lib/adminApi'
 import { fetchCatalog } from './lib/catalog'
 import { submitCheckout } from './lib/checkoutApi'
 import { saveCustomerExperience } from './lib/edgeFunctions'
 import { subscribeInventory } from './lib/realtimeInventory'
+import { fetchStaffContext } from './lib/staff'
 import {
   exchangeAuthCodeForSession,
   sendPasswordResetEmail,
@@ -195,6 +205,8 @@ export default function App() {
   // Modo de dados reais: catálogo/estoque vieram do Supabase (não do seed).
   const [isSupabaseData, setIsSupabaseData] = useState(false)
   const [serverOrder, setServerOrder] = useState<{ id: string; pickupCode: string }>()
+  // Cantina do staff logado (para criar produtos); papel vem do servidor.
+  const [staffCanteenId, setStaffCanteenId] = useState<string>()
   const [customerProfile, setCustomerProfile] = useState<CustomerProfileDetails>(() =>
     defaultCustomerProfile(session)
   )
@@ -377,6 +389,86 @@ export default function App() {
       unsubscribe()
     }
   }, [session])
+
+  // SEC-02: o papel de staff vem do SERVIDOR (profiles.role + canteen_staff),
+  // nao de metadata. Sessao de aluno com vinculo de staff e promovida a admin
+  // na UI; a barreira real continua sendo a RLS por cantina.
+  useEffect(() => {
+    if (!supabase || !session || session.role !== 'student') {
+      return undefined
+    }
+
+    let active = true
+
+    void (async () => {
+      const { data } = await supabase.auth.getSession()
+
+      if (!active || !data.session) {
+        return
+      }
+
+      const context = await fetchStaffContext()
+
+      if (active && context?.isStaff) {
+        setStaffCanteenId(context.canteenIds[0])
+        const upgraded = { ...session, role: 'admin' as const }
+        saveSession(upgraded)
+        setSession(upgraded)
+      }
+    })()
+
+    return () => {
+      active = false
+    }
+  }, [session])
+
+  async function refreshOrdersFromServer() {
+    const orders = await fetchActiveOrders()
+    setQueue(orders.filter((order) => order.status === 'queued'))
+    setPreparingOrders(
+      orders.filter((order) => order.status === 'preparing' || order.status === 'ready').reverse()
+    )
+    setCompletedOrders(orders.filter((order) => order.status === 'completed'))
+  }
+
+  async function refreshCatalogFromServer() {
+    const catalog = await fetchCatalog()
+
+    if (catalog) {
+      setProducts(catalog.products)
+      setInventory(catalog.inventory)
+    }
+  }
+
+  // Fila do painel de gestao com dados reais + realtime de orders.
+  useEffect(() => {
+    if (!supabase || !isSupabaseData || session?.role !== 'admin') {
+      return undefined
+    }
+
+    const loadOrders = () => {
+      refreshOrdersFromServer().catch(() => {
+        // Mantem o estado atual; proximo evento/foco tenta de novo.
+      })
+    }
+
+    loadOrders()
+
+    const unsubscribe = subscribeOrders(loadOrders)
+
+    function handleVisibility() {
+      if (document.visibilityState === 'visible') {
+        loadOrders()
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibility)
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility)
+      unsubscribe()
+    }
+  }, [isSupabaseData, session])
 
   const activeProducts = useMemo(() => products.filter((product) => product.active), [products])
   const cartItems = cart.listItems()
@@ -926,10 +1018,21 @@ export default function App() {
     }
   }
 
-  function handleTakeNextOrder() {
+  async function handleTakeNextOrder() {
     const [nextOrder, ...remaining] = queue
 
     if (!nextOrder) {
+      return
+    }
+
+    if (isSupabaseData) {
+      try {
+        await updateOrderStatus(nextOrder.id, 'preparing')
+        await refreshOrdersFromServer()
+      } catch (error) {
+        setErrorMessage(error instanceof Error ? error.message : 'Nao foi possivel chamar o pedido.')
+      }
+
       return
     }
 
@@ -938,7 +1041,18 @@ export default function App() {
     setPreparingOrders((current) => [nextOrder, ...current])
   }
 
-  function handleMarkReady(orderId: string) {
+  async function handleMarkReady(orderId: string) {
+    if (isSupabaseData) {
+      try {
+        await updateOrderStatus(orderId, 'ready')
+        await refreshOrdersFromServer()
+      } catch (error) {
+        setErrorMessage(error instanceof Error ? error.message : 'Nao foi possivel marcar como pronto.')
+      }
+
+      return
+    }
+
     setPreparingOrders((current) =>
       current.map((order) => {
         if (order.id === orderId) {
@@ -950,7 +1064,18 @@ export default function App() {
     )
   }
 
-  function handleCompleteOrder(orderId: string) {
+  async function handleCompleteOrder(orderId: string) {
+    if (isSupabaseData) {
+      try {
+        await updateOrderStatus(orderId, 'completed')
+        await refreshOrdersFromServer()
+      } catch (error) {
+        setErrorMessage(error instanceof Error ? error.message : 'Nao foi possivel concluir o pedido.')
+      }
+
+      return
+    }
+
     const order = preparingOrders.find((item) => item.id === orderId)
 
     if (!order) {
@@ -969,8 +1094,19 @@ export default function App() {
     }))
   }
 
-  function handleAdjustStock(productId: string, units: number) {
+  async function handleAdjustStock(productId: string, units: number) {
     if (!Number.isInteger(units) || units === 0) {
+      return
+    }
+
+    if (isSupabaseData) {
+      try {
+        await adjustStockOnServer(productId, units)
+        await refreshCatalogFromServer()
+      } catch (error) {
+        setErrorMessage(error instanceof Error ? error.message : 'Nao foi possivel ajustar o estoque.')
+      }
+
       return
     }
 
@@ -1012,7 +1148,7 @@ export default function App() {
     )
   }
 
-  function handleSaveProductPrice(productId: string) {
+  async function handleSaveProductPrice(productId: string) {
     const before = products.map(cloneProduct)
     const product = products.find((item) => item.id === productId)
     const draft = productAdjustmentDrafts[productId]
@@ -1022,6 +1158,24 @@ export default function App() {
       cents = parsePriceCents(draft?.price ?? '')
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Informe um preco valido.')
+      return
+    }
+
+    if (isSupabaseData) {
+      try {
+        await updateProductPrice(productId, cents)
+        await refreshCatalogFromServer()
+        setProductAdjustments((current) => ({
+          ...current,
+          [productId]: {
+            quantity: current[productId]?.quantity ?? '1',
+            price: formatPriceInput(cents)
+          }
+        }))
+      } catch (error) {
+        setErrorMessage(error instanceof Error ? error.message : 'Nao foi possivel salvar o preco.')
+      }
+
       return
     }
 
@@ -1049,7 +1203,23 @@ export default function App() {
     }))
   }
 
-  function handleDeactivateProduct(productId: string) {
+  async function toggleProductActiveOnServer(productId: string, active: boolean) {
+    try {
+      await setProductActive(productId, active)
+      await refreshCatalogFromServer()
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : 'Nao foi possivel atualizar o produto.'
+      )
+    }
+  }
+
+  async function handleDeactivateProduct(productId: string) {
+    if (isSupabaseData) {
+      await toggleProductActiveOnServer(productId, false)
+      return
+    }
+
     const before = products.map(cloneProduct)
     const product = products.find((item) => item.id === productId)
 
@@ -1070,7 +1240,12 @@ export default function App() {
     })
   }
 
-  function handleActivateProduct(productId: string) {
+  async function handleActivateProduct(productId: string) {
+    if (isSupabaseData) {
+      await toggleProductActiveOnServer(productId, true)
+      return
+    }
+
     const before = products.map(cloneProduct)
     const product = products.find((item) => item.id === productId)
 
@@ -1091,11 +1266,33 @@ export default function App() {
     })
   }
 
-  function handleCreateProduct() {
+  async function handleCreateProduct() {
     const priceNumber = Number(productDraft.price.replace(',', '.'))
 
     if (!productDraft.name.trim() || Number.isNaN(priceNumber) || priceNumber <= 0) {
       setErrorMessage('Informe nome e preco valido para criar produto.')
+      return
+    }
+
+    if (isSupabaseData) {
+      if (!staffCanteenId) {
+        setErrorMessage('Criar produto exige vinculo de gerente a uma cantina.')
+        return
+      }
+
+      try {
+        await createProductOnServer({
+          name: productDraft.name.trim(),
+          category: productDraft.category,
+          priceCents: Math.round(priceNumber * 100),
+          canteenId: staffCanteenId
+        })
+        await refreshCatalogFromServer()
+        setProductDraft({ name: '', price: '', category: 'lanche' })
+      } catch (error) {
+        setErrorMessage(error instanceof Error ? error.message : 'Nao foi possivel criar o produto.')
+      }
+
       return
     }
 
