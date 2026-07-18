@@ -340,6 +340,17 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
+      adjust_stock: {
+        Args: {
+          p_product_id: string
+          p_units: number
+          p_reason?: string
+        }
+        Returns: {
+          quantity: number
+          reserved: number
+        }[]
+      }
       checkout: {
         Args: {
           p_items: Json
