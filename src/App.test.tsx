@@ -79,7 +79,8 @@ describe('Rapidinha app', () => {
 
     await user.click(screen.getByRole('button', { name: /Luiz/i }))
     await user.click(screen.getByRole('button', { name: /^Sair$/i }))
-    await user.type(screen.getByLabelText(/E-mail/i), adminCredential.email)
+    // Logout é assíncrono (aguarda o signOut) — espera a tela de login.
+    await user.type(await screen.findByLabelText(/E-mail/i), adminCredential.email)
     await user.type(screen.getByLabelText(/Senha/i), adminCredential.password)
     await user.click(screen.getByRole('button', { name: /^Entrar$/i }))
 

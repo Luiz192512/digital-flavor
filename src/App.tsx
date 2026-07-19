@@ -211,6 +211,7 @@ export default function App() {
   const [errorMessage, setErrorMessage] = useState<string>()
   // Modo de dados reais: catálogo/estoque vieram do Supabase (não do seed).
   const [isSupabaseData, setIsSupabaseData] = useState(false)
+  const [loggingOut, setLoggingOut] = useState(false)
   // Ficha do pedido confirmado, com os dados CONGELADOS no momento do checkout
   // (cantina, horario e total): a ficha nao pode mudar se o usuario depois
   // trocar o horario no formulario (BUG-05) ou navegar para outra cantina
@@ -929,23 +930,37 @@ export default function App() {
     setPasswordUpdateSuccess('Senha atualizada com sucesso.')
   }
 
-  function handleLogout() {
-    void signOutFromSupabase()
-    clearSession()
-    setSession(undefined)
-    setCarts(new Map())
-    setLatestOrderId(undefined)
-    setConfirmedTicket(undefined)
-    setCanteens(demoCanteens)
-    setCanteensFromServer(false)
-
-    if (isSupabaseData) {
-      setIsSupabaseData(false)
-      setProducts(seedProducts.map(cloneProduct))
-      setInventory(seedInventory.map(cloneInventoryItem))
+  async function handleLogout() {
+    // BUG-16: o signOut precisa ser AGUARDADO antes de navegar. Sem isso, o
+    // navigate('/login') re-dispara o efeito de auth, cujo getSession() ainda
+    // enxerga a sessão (o signOut não terminou) e re-hidrata — o usuário
+    // precisava clicar duas vezes. O guard evita cliques repetidos em voo.
+    if (loggingOut) {
+      return
     }
 
-    navigate('/login', { replace: true })
+    setLoggingOut(true)
+
+    try {
+      await signOutFromSupabase()
+    } finally {
+      clearSession()
+      setSession(undefined)
+      setCarts(new Map())
+      setLatestOrderId(undefined)
+      setConfirmedTicket(undefined)
+      setCanteens(demoCanteens)
+      setCanteensFromServer(false)
+
+      if (isSupabaseData) {
+        setIsSupabaseData(false)
+        setProducts(seedProducts.map(cloneProduct))
+        setInventory(seedInventory.map(cloneInventoryItem))
+      }
+
+      navigate('/login', { replace: true })
+      setLoggingOut(false)
+    }
   }
 
   function syncCustomerData(
