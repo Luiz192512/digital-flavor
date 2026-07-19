@@ -30,23 +30,39 @@ export function MyOrdersPage({ isSupabaseData }: MyOrdersPageProps) {
 
     let active = true
 
-    fetchMyOrders()
-      .then((rows) => {
-        if (active) {
-          setOrders(rows)
-        }
-      })
-      .catch(() => {
-        // Mantém a lista vazia; o usuário pode voltar e tentar de novo.
-      })
-      .finally(() => {
-        if (active) {
-          setLoading(false)
-        }
-      })
+    function load() {
+      fetchMyOrders()
+        .then((rows) => {
+          if (active) {
+            setOrders(rows)
+          }
+        })
+        .catch(() => {
+          // Mantém a lista atual; o usuário pode voltar e tentar de novo.
+        })
+        .finally(() => {
+          if (active) {
+            setLoading(false)
+          }
+        })
+    }
+
+    load()
+
+    // BUG-08: sem isto a tela mostrava o status do mount para sempre (ex.:
+    // "Na fila") mesmo depois de a cantina marcar "pronto". Recarrega ao voltar
+    // o foco para a aba.
+    function handleVisibility() {
+      if (document.visibilityState === 'visible') {
+        load()
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibility)
 
     return () => {
       active = false
+      document.removeEventListener('visibilitychange', handleVisibility)
     }
   }, [isSupabaseData])
 
