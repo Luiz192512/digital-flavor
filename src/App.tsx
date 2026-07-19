@@ -186,6 +186,9 @@ export default function App() {
   const navigate = useNavigate()
   const location = useLocation()
   const handledAuthCode = useRef<string | undefined>(undefined)
+  // Garante que as comandas do modo demo sejam descartadas só uma vez, na
+  // primeira carga de cantinas reais (BUG-12), sem re-subscrever o efeito.
+  const serverCanteensLoaded = useRef(false)
   const [session, setSession] = useState<AuthSession | undefined>(() => readSession())
   const [loginError, setLoginError] = useState<string>()
   const [registerError, setRegisterError] = useState<string>()
@@ -396,6 +399,14 @@ export default function App() {
         const rows = await fetchCanteens()
 
         if (active && rows) {
+          // BUG-12: ao trocar as cantinas demo (ids 'demo-*') pelas reais
+          // (uuid), as comandas ficavam órfãs por chave de cantina. Na primeira
+          // carga de dados reais, descarta as comandas montadas no modo demo.
+          if (!serverCanteensLoaded.current) {
+            serverCanteensLoaded.current = true
+            setCarts(new Map())
+          }
+
           setCanteens(rows)
           setCanteensFromServer(true)
         }
