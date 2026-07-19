@@ -1,37 +1,38 @@
 export const brandColors = {
   red: '#C82828',
-  redDark: '#A91F26',
-  redSoft: '#F4DDDD',
-  wine: '#741533',
-  gold: '#D8A45D',
-  coolSoft: '#C8D0E8',
-  graphite: '#201C1F',
-  slate: '#6B6568',
-  softGray: '#F7F7F9',
-  border: '#DEDEE4',
+  redDark: '#A61F1F',
+  redSoft: '#F6E7E2',
+  green: '#2F5D50',
+  gold: '#A8842C',
+  ink: '#231F1C',
+  muted: '#7A736C',
+  paper: '#FCFBF7',
+  line: '#E7E2DA',
   white: '#FFFFFF'
 } as const
 
+// Tons dos carimbos de status (a cor do texto é também a da borda, via
+// currentColor no componente StatusBadge).
 export const statusTone = {
   success: {
     label: 'Disponivel',
-    className: 'bg-brand-red-soft text-brand-wine ring-brand-red/20'
+    className: 'text-brand-green'
   },
   info: {
     label: 'Operacional',
-    className: 'bg-brand-cool-soft text-brand-wine ring-brand-wine/20'
+    className: 'text-brand-ink/70'
   },
   warning: {
     label: 'Atencao',
-    className: 'bg-brand-gold/25 text-brand-wine ring-brand-gold/45'
+    className: 'text-brand-gold'
   },
   danger: {
     label: 'Critico',
-    className: 'bg-red-50 text-brand-red-dark ring-brand-red/20'
+    className: 'text-brand-red'
   },
   neutral: {
     label: 'Neutro',
-    className: 'bg-brand-paper text-brand-muted ring-brand-line'
+    className: 'text-brand-muted'
   }
 } as const
 

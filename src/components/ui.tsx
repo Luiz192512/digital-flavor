@@ -48,18 +48,24 @@ export function Panel({
   )
 }
 
+// Carimbo de status ("ficha de cantina"): uppercase, borda em currentColor,
+// letterspacing de carimbo de borracha. `className` permite a rotação do
+// ESGOTADO (-rotate-3) sem duplicar o componente.
 export function StatusBadge({
   tone = 'neutral',
+  className,
   children
 }: {
   tone?: StatusTone
+  className?: string
   children?: ReactNode
 }) {
   return (
     <span
       className={clsx(
-        'inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ring-1',
-        statusTone[tone].className
+        'inline-flex items-center rounded-[3px] border-[1.5px] border-current px-2 py-0.5 text-[10.5px] font-bold uppercase leading-5 tracking-[0.12em]',
+        statusTone[tone].className,
+        className
       )}
     >
       {children ?? statusTone[tone].label}

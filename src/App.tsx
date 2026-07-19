@@ -38,7 +38,9 @@ import {
   PaymentMethodsPage,
   ProfileDetailsPage
 } from './features/account/AccountPages'
-import { CustomerOrdering } from './features/customer/CustomerOrdering'
+import { CanteenHome } from './features/customer/CanteenHome'
+import { CanteenMenu } from './features/customer/CanteenMenu'
+import { MyOrdersPage } from './features/customer/MyOrdersPage'
 import {
   CompleteRegistrationPage,
   ForgotPasswordPage,
@@ -58,6 +60,8 @@ import {
   updateOrderStatus,
   updateProductPrice
 } from './lib/adminApi'
+import { BottomNav } from './components/BottomNav'
+import { demoCanteens, fetchCanteens, type CanteenInfo } from './lib/canteens'
 import { fetchCatalog } from './lib/catalog'
 import { submitCheckout } from './lib/checkoutApi'
 import { saveCustomerExperience } from './lib/edgeFunctions'
@@ -193,7 +197,10 @@ export default function App() {
   const [completeRegistrationError, setCompleteRegistrationError] = useState<string>()
   const [products, setProducts] = useState(() => seedProducts.map(cloneProduct))
   const [inventory, setInventory] = useState(() => seedInventory.map(cloneInventoryItem))
-  const [cart, setCart] = useState(() => new Cart())
+  // Marketplace v3: cantinas do banco (ou demo) e uma comanda POR cantina.
+  const [canteens, setCanteens] = useState<CanteenInfo[]>(demoCanteens)
+  const [canteensFromServer, setCanteensFromServer] = useState(false)
+  const [carts, setCarts] = useState<ReadonlyMap<string, Cart>>(new Map())
   const [queue, setQueue] = useState(() => seedOrders)
   const [preparingOrders, setPreparingOrders] = useState<Order[]>([])
   const [completedOrders, setCompletedOrders] = useState<typeof seedOrders>([])
@@ -204,9 +211,45 @@ export default function App() {
   const [errorMessage, setErrorMessage] = useState<string>()
   // Modo de dados reais: catálogo/estoque vieram do Supabase (não do seed).
   const [isSupabaseData, setIsSupabaseData] = useState(false)
-  const [serverOrder, setServerOrder] = useState<{ id: string; pickupCode: string }>()
+  const [serverOrder, setServerOrder] = useState<{
+    id: string
+    pickupCode: string
+    totalCents: number
+  }>()
   // Cantina do staff logado (para criar produtos); papel vem do servidor.
   const [staffCanteenId, setStaffCanteenId] = useState<string>()
+
+  // Cantina ativa pela rota /cantina/:slug (fallback: primeira cantina —
+  // cobre o modo demo de cantina única e o painel do staff).
+  const activeCanteenSlug = location.pathname.startsWith('/cantina/')
+    ? decodeURIComponent(location.pathname.split('/')[2] ?? '')
+    : undefined
+  const routeCanteen = activeCanteenSlug
+    ? canteens.find((canteen) => canteen.slug === activeCanteenSlug)
+    : undefined
+  const fallbackCart = useMemo(() => new Cart(), [])
+  const activeCanteen = routeCanteen ?? canteens[0]
+  const cart = carts.get(activeCanteen?.id ?? '') ?? fallbackCart
+
+  function setCart(next: Cart) {
+    const canteenId = activeCanteen?.id
+
+    if (!canteenId) {
+      return
+    }
+
+    setCarts((current) => new Map(current).set(canteenId, next))
+  }
+
+  const cartCountByCanteen = useMemo(() => {
+    const counts: Record<string, number> = {}
+
+    carts.forEach((value, key) => {
+      counts[key] = value.totalItems
+    })
+
+    return counts
+  }, [carts])
   const [customerProfile, setCustomerProfile] = useState<CustomerProfileDetails>(() =>
     defaultCustomerProfile(session)
   )
@@ -325,9 +368,57 @@ export default function App() {
     )
   }, [session])
 
-  // Fase 1 (dados reais): com sessão Supabase ativa, o catálogo e o estoque
-  // vêm do Postgres e o estoque assina o Realtime. Sem Supabase (modo demo)
-  // ou sem catálogo no banco, o seed local permanece como fallback.
+  // Marketplace v3: lista de cantinas (com fila) vinda do banco.
+  useEffect(() => {
+    if (!supabase || !session) {
+      return undefined
+    }
+
+    let active = true
+
+    async function loadCanteens() {
+      const { data } = await supabase!.auth.getSession()
+
+      if (!active || !data.session) {
+        return
+      }
+
+      try {
+        const rows = await fetchCanteens()
+
+        if (active && rows) {
+          setCanteens(rows)
+          setCanteensFromServer(true)
+        }
+      } catch {
+        // Mantém a lista atual (demo ou anterior).
+      }
+    }
+
+    void loadCanteens()
+
+    function handleVisibility() {
+      if (document.visibilityState === 'visible') {
+        void loadCanteens()
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibility)
+
+    return () => {
+      active = false
+      document.removeEventListener('visibilitychange', handleVisibility)
+    }
+  }, [session])
+
+  // Catálogo/estoque da CANTINA ativa (rota /cantina/:slug; staff usa a
+  // cantina do vínculo). Sem Supabase (modo demo) o seed local permanece.
+  const catalogCanteenId = canteensFromServer
+    ? session?.role === 'admin' && staffCanteenId
+      ? staffCanteenId
+      : activeCanteen?.id
+    : undefined
+
   useEffect(() => {
     if (!supabase || !session) {
       return undefined
@@ -343,7 +434,7 @@ export default function App() {
       }
 
       try {
-        const catalog = await fetchCatalog()
+        const catalog = await fetchCatalog(catalogCanteenId)
 
         if (active && catalog) {
           setProducts(catalog.products)
@@ -388,7 +479,7 @@ export default function App() {
       document.removeEventListener('visibilitychange', handleVisibility)
       unsubscribe()
     }
-  }, [session])
+  }, [session, catalogCanteenId])
 
   // SEC-02: o papel de staff vem do SERVIDOR (profiles.role + canteen_staff),
   // nao de metadata. Sessao de aluno com vinculo de staff e promovida a admin
@@ -432,7 +523,7 @@ export default function App() {
   }
 
   async function refreshCatalogFromServer() {
-    const catalog = await fetchCatalog()
+    const catalog = await fetchCatalog(catalogCanteenId)
 
     if (catalog) {
       setProducts(catalog.products)
@@ -840,9 +931,11 @@ export default function App() {
     void signOutFromSupabase()
     clearSession()
     setSession(undefined)
-    setCart(new Cart())
+    setCarts(new Map())
     setLatestOrderId(undefined)
     setServerOrder(undefined)
+    setCanteens(demoCanteens)
+    setCanteensFromServer(false)
 
     if (isSupabaseData) {
       setIsSupabaseData(false)
@@ -972,13 +1065,17 @@ export default function App() {
           paymentMethod
         )
 
-        setServerOrder({ id: result.orderId, pickupCode: result.pickupCode })
+        setServerOrder({
+          id: result.orderId,
+          pickupCode: result.pickupCode,
+          totalCents: result.totalCents
+        })
         setLatestOrderId(result.orderId)
         setCart(new Cart())
 
         // Fallback do Realtime: garante estoque atualizado após a compra.
         try {
-          const catalog = await fetchCatalog()
+          const catalog = await fetchCatalog(catalogCanteenId)
 
           if (catalog) {
             setInventory(catalog.inventory)
@@ -1333,16 +1430,44 @@ export default function App() {
     setAdminHistory((current) => current.slice(0, -1))
   }
 
-  const studentPage = session?.role === 'student' && hasCompleteStudentDocuments(session) ? (
-    <main className="min-h-screen bg-slate-50 text-slate-950">
-      <AppHeader
-        role="student"
-        cartItems={cart.totalItems}
-        queueLabel={customerOrderStatus.headerLabel}
-        userName={session.name}
-        onLogout={handleLogout}
-      />
-      <CustomerOrdering
+  // Casca das páginas do aluno no marketplace: header + conteúdo + nav
+  // inferior de app no mobile.
+  function studentShell(element: ReactNode) {
+    if (session?.role !== 'student') {
+      return <Navigate to={session?.role === 'admin' ? '/admin' : '/login'} replace />
+    }
+
+    if (!hasCompleteStudentDocuments(session)) {
+      return <Navigate to="/completar-cadastro" replace />
+    }
+
+    return (
+      <main className="min-h-screen bg-brand-paper text-brand-ink">
+        <AppHeader
+          role="student"
+          cartItems={cart.totalItems}
+          queueLabel={customerOrderStatus.headerLabel}
+          userName={session.name}
+          onLogout={handleLogout}
+        />
+        {element}
+        <BottomNav />
+      </main>
+    )
+  }
+
+  const homePage = studentShell(
+    <CanteenHome
+      canteens={canteens}
+      userName={session?.name ?? 'Cliente'}
+      cartCountByCanteen={cartCountByCanteen}
+    />
+  )
+
+  const canteenPage = routeCanteen ? (
+    studentShell(
+      <CanteenMenu
+        canteen={routeCanteen}
         products={activeProducts}
         inventory={inventory}
         cartItems={cartItems}
@@ -1350,6 +1475,7 @@ export default function App() {
         pickupTime={pickupTime}
         paymentMethod={paymentMethod}
         orderStatus={customerOrderStatus}
+        fichaTotalCents={serverOrder?.totalCents}
         errorMessage={errorMessage}
         onPickupTimeChange={setPickupTime}
         onPaymentMethodChange={setPaymentMethod}
@@ -1357,22 +1483,15 @@ export default function App() {
         onUpdateQuantity={handleUpdateQuantity}
         onCheckout={handleCheckout}
       />
-    </main>
+    )
   ) : (
-    <Navigate
-      to={
-        session?.role === 'admin'
-          ? '/admin'
-          : session?.role === 'student'
-            ? '/completar-cadastro'
-            : '/login'
-      }
-      replace
-    />
+    <Navigate to="/" replace />
   )
 
+  const myOrdersPage = studentShell(<MyOrdersPage isSupabaseData={isSupabaseData} />)
+
   const adminPage = session?.role === 'admin' ? (
-    <main className="min-h-screen bg-slate-50 text-slate-950">
+    <main className="min-h-screen bg-brand-paper text-brand-ink">
       <AppHeader
         role="admin"
         cartItems={cart.totalItems}
@@ -1423,7 +1542,7 @@ export default function App() {
     }
 
     return (
-      <main className="min-h-screen bg-slate-50 text-slate-950">
+      <main className="min-h-screen bg-brand-paper pb-16 text-brand-ink sm:pb-0">
         <AppHeader
           role="student"
           cartItems={cart.totalItems}
@@ -1432,13 +1551,16 @@ export default function App() {
           onLogout={handleLogout}
         />
         {element}
+        <BottomNav />
       </main>
     )
   }
 
   return (
     <Routes>
-      <Route path="/" element={studentPage} />
+      <Route path="/" element={homePage} />
+      <Route path="/cantina/:slug" element={canteenPage} />
+      <Route path="/pedidos" element={myOrdersPage} />
       <Route
         path="/login"
         element={

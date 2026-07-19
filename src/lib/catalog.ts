@@ -10,16 +10,23 @@ export interface Catalog {
 // domínio da UI. Retorna null quando o Supabase não está configurado ou o
 // banco não tem catálogo (o chamador mantém o seed local nesses casos).
 // As policies de leitura exigem usuário autenticado — chamar apenas com
-// sessão Supabase ativa.
-export async function fetchCatalog(): Promise<Catalog | null> {
+// sessão Supabase ativa. `canteenId` restringe o cardápio à cantina da rota
+// (marketplace v3: cada cantina tem o próprio menu).
+export async function fetchCatalog(canteenId?: string): Promise<Catalog | null> {
   if (!supabase) {
     return null
   }
 
+  let productsQuery = supabase
+    .from('products')
+    .select('id,name,description,category,price_cents,preparation_minutes,sustainability_score,active')
+
+  if (canteenId) {
+    productsQuery = productsQuery.eq('canteen_id', canteenId)
+  }
+
   const [productsResult, inventoryResult] = await Promise.all([
-    supabase
-      .from('products')
-      .select('id,name,description,category,price_cents,preparation_minutes,sustainability_score,active'),
+    productsQuery,
     supabase.from('inventory').select('product_id,quantity,reserved,reorder_point,expires_at')
   ])
 
