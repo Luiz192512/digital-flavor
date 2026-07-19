@@ -34,8 +34,12 @@ self.addEventListener('fetch', (event) => {
         (cached) =>
           cached ??
           fetch(event.request).then((response) => {
-            const copy = response.clone()
-            void caches.open(CACHE).then((cache) => cache.put(event.request, copy))
+            // BUG-03: só cachear respostas boas — cachear um 404/500 o tornaria
+            // permanente (assets são cache-first).
+            if (response.ok) {
+              const copy = response.clone()
+              void caches.open(CACHE).then((cache) => cache.put(event.request, copy))
+            }
             return response
           })
       )
@@ -48,8 +52,12 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          const copy = response.clone()
-          void caches.open(CACHE).then((cache) => cache.put('/', copy))
+          // BUG-03: só atualizar o shell com uma navegação bem-sucedida; senão
+          // uma página de erro do host viraria o fallback offline.
+          if (response.ok) {
+            const copy = response.clone()
+            void caches.open(CACHE).then((cache) => cache.put('/', copy))
+          }
           return response
         })
         .catch(() => caches.match('/'))
