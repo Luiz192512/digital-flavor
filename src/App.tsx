@@ -186,6 +186,9 @@ export default function App() {
   const navigate = useNavigate()
   const location = useLocation()
   const handledAuthCode = useRef<string | undefined>(undefined)
+  // Garante que as comandas do modo demo sejam descartadas só uma vez, na
+  // primeira carga de cantinas reais (BUG-12), sem re-subscrever o efeito.
+  const serverCanteensLoaded = useRef(false)
   const [session, setSession] = useState<AuthSession | undefined>(() => readSession())
   const [loginError, setLoginError] = useState<string>()
   const [registerError, setRegisterError] = useState<string>()
@@ -211,11 +214,20 @@ export default function App() {
   const [errorMessage, setErrorMessage] = useState<string>()
   // Modo de dados reais: catálogo/estoque vieram do Supabase (não do seed).
   const [isSupabaseData, setIsSupabaseData] = useState(false)
-  const [serverOrder, setServerOrder] = useState<{
-    id: string
-    pickupCode: string
+  const [loggingOut, setLoggingOut] = useState(false)
+  // Ficha do pedido confirmado, com os dados CONGELADOS no momento do checkout
+  // (cantina, horario e total): a ficha nao pode mudar se o usuario depois
+  // trocar o horario no formulario (BUG-05) ou navegar para outra cantina
+  // (BUG-04), e precisa do total real tambem no modo demo (BUG-01).
+  const [confirmedTicket, setConfirmedTicket] = useState<{
+    orderId: string
+    code: string
+    canteenId: string
+    canteenName: string
+    pickupTime: string
     totalCents: number
   }>()
+  const [checkoutSubmitting, setCheckoutSubmitting] = useState(false)
   // Cantina do staff logado (para criar produtos); papel vem do servidor.
   const [staffCanteenId, setStaffCanteenId] = useState<string>()
 
@@ -387,6 +399,14 @@ export default function App() {
         const rows = await fetchCanteens()
 
         if (active && rows) {
+          // BUG-12: ao trocar as cantinas demo (ids 'demo-*') pelas reais
+          // (uuid), as comandas ficavam órfãs por chave de cantina. Na primeira
+          // carga de dados reais, descarta as comandas montadas no modo demo.
+          if (!serverCanteensLoaded.current) {
+            serverCanteensLoaded.current = true
+            setCarts(new Map())
+          }
+
           setCanteens(rows)
           setCanteensFromServer(true)
         }
@@ -579,12 +599,11 @@ export default function App() {
     ) as Record<string, ProductAdjustmentDraft>
   }, [productAdjustments, products])
   const customerOrderStatus = useMemo(() => {
-    if (serverOrder && latestOrderId === serverOrder.id) {
+    if (isSupabaseData && confirmedTicket && latestOrderId === confirmedTicket.orderId) {
       return {
         headerLabel: 'Pedido confirmado',
         title: 'Na fila',
         detail: 'Pedido confirmado na cantina. Apresente o codigo na retirada.',
-        code: serverOrder.pickupCode,
         tone: 'info' as const
       }
     }
@@ -601,13 +620,10 @@ export default function App() {
     const queuedIndex = queue.findIndex((order) => order.id === latestOrderId)
 
     if (queuedIndex >= 0) {
-      const order = queue[queuedIndex]
-
       return {
         headerLabel: `Sua posicao ${queuedIndex + 1}`,
         title: `Sua posicao: ${queuedIndex + 1}`,
         detail: 'Pedido confirmado. A cantina vai chamar os pedidos na ordem de chegada.',
-        code: order.pickupCode,
         tone: 'warning' as const
       }
     }
@@ -623,7 +639,6 @@ export default function App() {
         detail: ready
           ? 'Seu pedido esta pronto para retirada.'
           : 'Seu pedido ja esta sendo preparado.',
-        code: preparingOrder.pickupCode,
         tone: ready ? ('success' as const) : ('info' as const)
       }
     }
@@ -635,7 +650,6 @@ export default function App() {
         headerLabel: 'Retirado',
         title: 'Retirado',
         detail: 'Pedido finalizado. Obrigado pela compra.',
-        code: completedOrder.pickupCode,
         tone: 'success' as const
       }
     }
@@ -646,7 +660,7 @@ export default function App() {
       detail: 'Faca seu pedido para acompanhar a posicao de retirada.',
       tone: 'info' as const
     }
-  }, [completedOrders, latestOrderId, preparingOrders, queue, serverOrder])
+  }, [completedOrders, isSupabaseData, latestOrderId, preparingOrders, queue, confirmedTicket])
 
   async function handleLogin(email: string, password: string) {
     setLoginError(undefined)
@@ -927,23 +941,37 @@ export default function App() {
     setPasswordUpdateSuccess('Senha atualizada com sucesso.')
   }
 
-  function handleLogout() {
-    void signOutFromSupabase()
-    clearSession()
-    setSession(undefined)
-    setCarts(new Map())
-    setLatestOrderId(undefined)
-    setServerOrder(undefined)
-    setCanteens(demoCanteens)
-    setCanteensFromServer(false)
-
-    if (isSupabaseData) {
-      setIsSupabaseData(false)
-      setProducts(seedProducts.map(cloneProduct))
-      setInventory(seedInventory.map(cloneInventoryItem))
+  async function handleLogout() {
+    // BUG-16: o signOut precisa ser AGUARDADO antes de navegar. Sem isso, o
+    // navigate('/login') re-dispara o efeito de auth, cujo getSession() ainda
+    // enxerga a sessão (o signOut não terminou) e re-hidrata — o usuário
+    // precisava clicar duas vezes. O guard evita cliques repetidos em voo.
+    if (loggingOut) {
+      return
     }
 
-    navigate('/login', { replace: true })
+    setLoggingOut(true)
+
+    try {
+      await signOutFromSupabase()
+    } finally {
+      clearSession()
+      setSession(undefined)
+      setCarts(new Map())
+      setLatestOrderId(undefined)
+      setConfirmedTicket(undefined)
+      setCanteens(demoCanteens)
+      setCanteensFromServer(false)
+
+      if (isSupabaseData) {
+        setIsSupabaseData(false)
+        setProducts(seedProducts.map(cloneProduct))
+        setInventory(seedInventory.map(cloneInventoryItem))
+      }
+
+      navigate('/login', { replace: true })
+      setLoggingOut(false)
+    }
   }
 
   function syncCustomerData(
@@ -1052,22 +1080,39 @@ export default function App() {
   }
 
   async function handleCheckout() {
-    setErrorMessage(undefined)
+    // BUG-02: trava contra duplo clique enquanto a confirmação está em voo —
+    // sem isso, dois cliques rápidos criam dois pedidos reais.
+    if (checkoutSubmitting) {
+      return
+    }
 
-    // Modo de dados reais: o pedido é confirmado pela RPC atômica no
-    // Postgres (preço/estoque decididos no servidor); o estoque local
-    // atualiza pelo Realtime.
-    if (isSupabaseData) {
-      try {
+    const canteen = activeCanteen
+
+    if (!canteen) {
+      return
+    }
+
+    setErrorMessage(undefined)
+    setCheckoutSubmitting(true)
+
+    try {
+      // Modo de dados reais: o pedido é confirmado pela RPC atômica no
+      // Postgres (preço/estoque decididos no servidor); o estoque local
+      // atualiza pelo Realtime.
+      if (isSupabaseData) {
+        const items = cart.listItems()
         const result = await submitCheckout(
-          cart.listItems().map((item) => ({ productId: item.productId, quantity: item.quantity })),
+          items.map((item) => ({ productId: item.productId, quantity: item.quantity })),
           pickupTime,
           paymentMethod
         )
 
-        setServerOrder({
-          id: result.orderId,
-          pickupCode: result.pickupCode,
+        setConfirmedTicket({
+          orderId: result.orderId,
+          code: result.pickupCode,
+          canteenId: canteen.id,
+          canteenName: canteen.name,
+          pickupTime,
           totalCents: result.totalCents
         })
         setLatestOrderId(result.orderId)
@@ -1083,16 +1128,10 @@ export default function App() {
         } catch {
           // Estoque atualizara pelo Realtime ou no proximo foco da aba.
         }
-      } catch (error) {
-        setErrorMessage(
-          error instanceof Error ? error.message : 'Nao foi possivel confirmar o pedido.'
-        )
+
+        return
       }
 
-      return
-    }
-
-    try {
       const stockService = new StockService(inventory.map(cloneInventoryItem))
       const checkout = new CheckoutService(stockService)
       const order = checkout.createOrder({
@@ -1110,8 +1149,18 @@ export default function App() {
       setInventory(stockService.snapshot().map(cloneInventoryItem))
       setCart(new Cart())
       setLatestOrderId(order.id)
+      setConfirmedTicket({
+        orderId: order.id,
+        code: order.pickupCode,
+        canteenId: canteen.id,
+        canteenName: canteen.name,
+        pickupTime,
+        totalCents: order.totalCents
+      })
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : 'Nao foi possivel confirmar.')
+      setErrorMessage(error instanceof Error ? error.message : 'Nao foi possivel confirmar o pedido.')
+    } finally {
+      setCheckoutSubmitting(false)
     }
   }
 
@@ -1475,7 +1524,12 @@ export default function App() {
         pickupTime={pickupTime}
         paymentMethod={paymentMethod}
         orderStatus={customerOrderStatus}
-        fichaTotalCents={serverOrder?.totalCents}
+        ticket={
+          confirmedTicket && confirmedTicket.canteenId === routeCanteen.id
+            ? confirmedTicket
+            : undefined
+        }
+        submitting={checkoutSubmitting}
         errorMessage={errorMessage}
         onPickupTimeChange={setPickupTime}
         onPaymentMethodChange={setPaymentMethod}

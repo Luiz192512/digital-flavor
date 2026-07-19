@@ -11,8 +11,15 @@ import { formatCurrency } from '../../utils/format'
 interface CustomerOrderStatus {
   title: string
   detail: string
-  code?: string
   tone: StatusTone
+}
+
+// Dados congelados da ficha, definidos no checkout (não mudam com o formulário).
+interface OrderTicket {
+  code: string
+  canteenName: string
+  pickupTime: string
+  totalCents: number
 }
 
 interface CanteenMenuProps {
@@ -24,7 +31,8 @@ interface CanteenMenuProps {
   pickupTime: string
   paymentMethod: PaymentMethod
   orderStatus: CustomerOrderStatus
-  fichaTotalCents?: number
+  ticket?: OrderTicket
+  submitting?: boolean
   errorMessage?: string
   onPickupTimeChange: (value: string) => void
   onPaymentMethodChange: (value: PaymentMethod) => void
@@ -53,7 +61,8 @@ export function CanteenMenu({
   pickupTime,
   paymentMethod,
   orderStatus,
-  fichaTotalCents,
+  ticket,
+  submitting,
   errorMessage,
   onPickupTimeChange,
   onPaymentMethodChange,
@@ -230,19 +239,23 @@ export function CanteenMenu({
               </p>
             ) : null}
 
-            <Button type="button" disabled={cartItems.length === 0} onClick={onCheckout}>
-              Confirmar pedido
+            <Button
+              type="button"
+              disabled={cartItems.length === 0 || submitting}
+              onClick={onCheckout}
+            >
+              {submitting ? 'Confirmando...' : 'Confirmar pedido'}
             </Button>
           </div>
         </Panel>
 
-        {orderStatus.code ? (
+        {ticket ? (
           <div>
             <Ficha
-              code={orderStatus.code}
-              canteenName={canteen.name}
-              pickupTime={pickupTime}
-              totalCents={fichaTotalCents ?? 0}
+              code={ticket.code}
+              canteenName={ticket.canteenName}
+              pickupTime={ticket.pickupTime}
+              totalCents={ticket.totalCents}
               statusLabel={orderStatus.title}
               animate
             />

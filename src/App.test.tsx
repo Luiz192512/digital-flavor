@@ -53,6 +53,10 @@ describe('Rapidinha app', () => {
 
     expect(screen.getByText(/Sua posicao: 4/i)).toBeInTheDocument()
     expect(screen.getByText(/Ficha de retirada/i)).toBeInTheDocument()
+    // BUG-01: a ficha deve mostrar o total real do pedido, nao R$ 0,00.
+    const ficha = screen.getByText(/Ficha de retirada/i).closest('div')!
+    expect(ficha).toHaveTextContent(/R\$\s*12,90/)
+    expect(ficha).not.toHaveTextContent(/R\$\s*0,00/)
   })
 
   it('shows the real client name in the admin order list', async () => {
@@ -75,7 +79,8 @@ describe('Rapidinha app', () => {
 
     await user.click(screen.getByRole('button', { name: /Luiz/i }))
     await user.click(screen.getByRole('button', { name: /^Sair$/i }))
-    await user.type(screen.getByLabelText(/E-mail/i), adminCredential.email)
+    // Logout é assíncrono (aguarda o signOut) — espera a tela de login.
+    await user.type(await screen.findByLabelText(/E-mail/i), adminCredential.email)
     await user.type(screen.getByLabelText(/Senha/i), adminCredential.password)
     await user.click(screen.getByRole('button', { name: /^Entrar$/i }))
 
