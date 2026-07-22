@@ -30,6 +30,14 @@ function translateCheckoutError(message: string): string {
     return 'O pedido deve conter itens de uma unica cantina.'
   }
 
+  if (message === 'pickup_outside_hours') {
+    return 'Horario de retirada fora do funcionamento da cantina.'
+  }
+
+  if (message === 'pickup_time_required') {
+    return 'Informe o horario de retirada.'
+  }
+
   if (message === 'not_authenticated' || message === 'profile_not_found') {
     return 'Sessao expirada. Entre novamente para confirmar o pedido.'
   }
