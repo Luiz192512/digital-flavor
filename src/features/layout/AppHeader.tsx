@@ -16,12 +16,21 @@ import { Button, StatusBadge } from '../../components/ui'
 
 export type HeaderRole = 'student' | 'admin'
 
+interface HeaderSearch {
+  value: string
+  placeholder: string
+  onChange: (value: string) => void
+}
+
 interface AppHeaderProps {
   role: HeaderRole
   cartItems: number
   queueLabel: string
   userName: string
   onLogout: () => void
+  // BUG-15: a busca só aparece quando há o que buscar (home/cardápio). Ausente
+  // em telas sem alvo (admin, páginas de conta), em vez de um campo inerte.
+  search?: HeaderSearch
 }
 
 export function AppHeader({
@@ -29,7 +38,8 @@ export function AppHeader({
   cartItems,
   queueLabel,
   userName,
-  onLogout
+  onLogout,
+  search
 }: AppHeaderProps) {
   const [profileOpen, setProfileOpen] = useState(false)
   const shortName = userName.trim().split(/\s+/)[0] || 'Cliente'
@@ -54,14 +64,18 @@ export function AppHeader({
           </StatusBadge>
         </div>
 
-        <label className="col-span-2 flex min-h-10 items-center gap-2 rounded-md border border-brand-line bg-brand-paper px-3 text-sm text-brand-muted lg:col-span-1 lg:min-w-[360px] lg:flex-1">
-          <Search size={17} aria-hidden="true" />
-          <span className="sr-only">Buscar</span>
-          <input
-            className="w-full bg-transparent text-brand-ink outline-none placeholder:text-brand-muted/70"
-            placeholder="Buscar produto ou pedido"
-          />
-        </label>
+        {search ? (
+          <label className="col-span-2 flex min-h-10 items-center gap-2 rounded-md border border-brand-line bg-brand-paper px-3 text-sm text-brand-muted lg:col-span-1 lg:min-w-[360px] lg:flex-1">
+            <Search size={17} aria-hidden="true" />
+            <span className="sr-only">Buscar</span>
+            <input
+              className="w-full bg-transparent text-brand-ink outline-none placeholder:text-brand-muted/70"
+              placeholder={search.placeholder}
+              value={search.value}
+              onChange={(event) => search.onChange(event.target.value)}
+            />
+          </label>
+        ) : null}
 
         <div className="col-span-2 grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 lg:col-span-1 lg:flex lg:flex-nowrap lg:justify-end">
           {role === 'student' ? (

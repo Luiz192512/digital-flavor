@@ -218,6 +218,7 @@ export default function App() {
   // Modo de dados reais: catálogo/estoque vieram do Supabase (não do seed).
   const [isSupabaseData, setIsSupabaseData] = useState(false)
   const [loggingOut, setLoggingOut] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
   // Ficha do pedido confirmado, com os dados CONGELADOS no momento do checkout
   // (cantina, horario e total): a ficha nao pode mudar se o usuario depois
   // trocar o horario no formulario (BUG-05) ou navegar para outra cantina
@@ -284,6 +285,12 @@ export default function App() {
     price: '',
     category: 'lanche'
   })
+
+  // BUG-15: a busca é por tela; ao trocar de rota o termo é limpo para não
+  // vazar de uma cantina para outra ou para a home.
+  useEffect(() => {
+    setSearchQuery('')
+  }, [location.pathname])
 
   useEffect(() => {
     if (!supabase) {
@@ -1501,8 +1508,9 @@ export default function App() {
   }
 
   // Casca das páginas do aluno no marketplace: header + conteúdo + nav
-  // inferior de app no mobile.
-  function studentShell(element: ReactNode) {
+  // inferior de app no mobile. `searchPlaceholder` liga a busca do header a
+  // esta tela (BUG-15); sem ele, o campo de busca não é exibido.
+  function studentShell(element: ReactNode, searchPlaceholder?: string) {
     if (session?.role !== 'student') {
       return <Navigate to={session?.role === 'admin' ? '/admin' : '/login'} replace />
     }
@@ -1519,6 +1527,11 @@ export default function App() {
           queueLabel={customerOrderStatus.headerLabel}
           userName={session.name}
           onLogout={handleLogout}
+          search={
+            searchPlaceholder
+              ? { value: searchQuery, placeholder: searchPlaceholder, onChange: setSearchQuery }
+              : undefined
+          }
         />
         {element}
         <BottomNav />
@@ -1526,19 +1539,34 @@ export default function App() {
     )
   }
 
+  const normalizedQuery = searchQuery.trim().toLowerCase()
+
+  const visibleCanteens = normalizedQuery
+    ? canteens.filter(
+        (canteen) =>
+          canteen.name.toLowerCase().includes(normalizedQuery) ||
+          canteen.location.toLowerCase().includes(normalizedQuery)
+      )
+    : canteens
+
+  const visibleMenuProducts = normalizedQuery
+    ? activeProducts.filter((product) => product.name.toLowerCase().includes(normalizedQuery))
+    : activeProducts
+
   const homePage = studentShell(
     <CanteenHome
-      canteens={canteens}
+      canteens={visibleCanteens}
       userName={session?.name ?? 'Cliente'}
       cartCountByCanteen={cartCountByCanteen}
-    />
+    />,
+    'Buscar cantina'
   )
 
   const canteenPage = routeCanteen ? (
     studentShell(
       <CanteenMenu
         canteen={routeCanteen}
-        products={activeProducts}
+        products={visibleMenuProducts}
         inventory={inventory}
         cartItems={cartItems}
         cartTotalCents={cart.totalCents}
@@ -1557,7 +1585,8 @@ export default function App() {
         onAddProduct={handleAddProduct}
         onUpdateQuantity={handleUpdateQuantity}
         onCheckout={handleCheckout}
-      />
+      />,
+      'Buscar no cardapio'
     )
   ) : (
     <Navigate to="/" replace />
