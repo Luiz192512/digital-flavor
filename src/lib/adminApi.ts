@@ -52,21 +52,46 @@ interface ActiveOrderRow {
 // para as classes de dominio consumidas pelo ManagementWorkspace.
 export async function fetchActiveOrders(): Promise<Order[]> {
   const client = requireClient()
+  const columns =
+    'id,customer_id,customer_name,status,pickup_time,pickup_code,created_at,order_items(product_id,product_name,unit_price_cents,quantity,total_cents),payments(id,method,status,amount_cents)'
 
-  const { data, error } = await client
-    .from('orders')
-    .select(
-      'id,customer_id,customer_name,status,pickup_time,pickup_code,created_at,order_items(product_id,product_name,unit_price_cents,quantity,total_cents),payments(id,method,status,amount_cents)'
-    )
-    .in('status', ['queued', 'preparing', 'ready', 'completed'])
-    .order('created_at', { ascending: true })
-    .limit(100)
+  // BUG-07: separar a fila (ativos, ordem de chegada, sem teto que os empurre
+  // para fora) dos concluídos (só de hoje, mais recentes primeiro). Antes uma
+  // única query `limit(100)` asc podia trazer só os 100 concluídos mais
+  // antigos e esconder a fila atual.
+  const startOfToday = new Date()
+  startOfToday.setHours(0, 0, 0, 0)
 
-  if (error) {
-    throw new Error(translateAdminError(error.message))
+  const [activeResult, completedResult] = await Promise.all([
+    client
+      .from('orders')
+      .select(columns)
+      .in('status', ['queued', 'preparing', 'ready'])
+      .order('created_at', { ascending: true })
+      .limit(200),
+    client
+      .from('orders')
+      .select(columns)
+      .eq('status', 'completed')
+      .gte('created_at', startOfToday.toISOString())
+      .order('created_at', { ascending: false })
+      .limit(100)
+  ])
+
+  if (activeResult.error) {
+    throw new Error(translateAdminError(activeResult.error.message))
   }
 
-  return ((data ?? []) as unknown as ActiveOrderRow[])
+  if (completedResult.error) {
+    throw new Error(translateAdminError(completedResult.error.message))
+  }
+
+  const rows = [
+    ...((activeResult.data ?? []) as unknown as ActiveOrderRow[]),
+    ...((completedResult.data ?? []) as unknown as ActiveOrderRow[])
+  ]
+
+  return rows
     .filter((row) => row.order_items.length > 0)
     .map((row) => {
       const paymentRow = row.payments[0]
