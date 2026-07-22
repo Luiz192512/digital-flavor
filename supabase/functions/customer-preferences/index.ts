@@ -121,35 +121,24 @@ Deno.serve(async (req) => {
   }
 
   if (Array.isArray(body.paymentMethods)) {
+    // BUG-06: substituição atômica via RPC — antes o delete + insert em
+    // statements separados podia deixar o usuário sem nenhum método se o
+    // insert falhasse. A RPC roda delete+insert numa única transação.
     const paymentRows = body.paymentMethods
       .filter((method) => method.type && method.label && method.detail)
       .map((method, index) => ({
-        profile_id: user.id,
         method: method.type as PaymentMethod,
         label: String(method.label),
         detail: String(method.detail),
-        preferred: method.preferred ?? index === 0,
-        active: true,
-        updated_at: now
+        preferred: method.preferred ?? index === 0
       }))
 
-    const { error: deleteError } = await supabase
-      .from('customer_payment_methods')
-      .delete()
-      .eq('profile_id', user.id)
+    const { error: paymentError } = await supabase.rpc('save_payment_methods', {
+      p_methods: paymentRows
+    })
 
-    if (deleteError) {
-      return jsonResponse({ error: deleteError.message }, 400, req)
-    }
-
-    if (paymentRows.length > 0) {
-      const { error: insertError } = await supabase
-        .from('customer_payment_methods')
-        .insert(paymentRows)
-
-      if (insertError) {
-        return jsonResponse({ error: insertError.message }, 400, req)
-      }
+    if (paymentError) {
+      return jsonResponse({ error: paymentError.message }, 400, req)
     }
   }
 
