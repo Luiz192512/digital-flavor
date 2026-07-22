@@ -189,6 +189,9 @@ export default function App() {
   // Garante que as comandas do modo demo sejam descartadas só uma vez, na
   // primeira carga de cantinas reais (BUG-12), sem re-subscrever o efeito.
   const serverCanteensLoaded = useRef(false)
+  // Identidade da última sessão aplicada, para não re-hidratar a cada
+  // TOKEN_REFRESHED do Supabase (BUG-13): mesmo usuário → ignora o evento.
+  const appliedSessionKey = useRef<string | undefined>(undefined)
   const [session, setSession] = useState<AuthSession | undefined>(() => readSession())
   const [loginError, setLoginError] = useState<string>()
   const [registerError, setRegisterError] = useState<string>()
@@ -290,6 +293,23 @@ export default function App() {
     let active = true
 
     function applySupabaseSession(userSession: AuthSession) {
+      // BUG-13: o Supabase dispara onAuthStateChange também em TOKEN_REFRESHED
+      // (~1h). Sem esta guarda, cada refresh criava um novo objeto de sessão e
+      // re-executava todos os efeitos com dep [session] (recarga de catálogo,
+      // cantinas, fila). Ignora quando a identidade não mudou.
+      const nextKey = JSON.stringify([
+        userSession.email,
+        userSession.role,
+        userSession.name,
+        userSession.studentRa,
+        userSession.cpf
+      ])
+
+      if (appliedSessionKey.current === nextKey) {
+        return
+      }
+
+      appliedSessionKey.current = nextKey
       saveSession(userSession)
       setSession(userSession)
 
@@ -955,6 +975,7 @@ export default function App() {
     try {
       await signOutFromSupabase()
     } finally {
+      appliedSessionKey.current = undefined
       clearSession()
       setSession(undefined)
       setCarts(new Map())
