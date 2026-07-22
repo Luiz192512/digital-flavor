@@ -4,6 +4,25 @@
 // o app; dados vivos continuam exigindo rede — pedidos nunca são cacheados).
 const CACHE = 'rapidinha-v1'
 const SHELL = ['/', '/manifest.webmanifest']
+// BUG-09: sem auto-versão por deploy, os assets com hash antigos se
+// acumulariam para sempre. Limita o número de entradas de asset no cache,
+// podando as mais antigas (a shell é preservada).
+const MAX_ASSET_ENTRIES = 60
+
+async function trimAssetCache() {
+  const cache = await caches.open(CACHE)
+  const keys = await cache.keys()
+  const assetKeys = keys.filter((request) => {
+    const path = new URL(request.url).pathname
+    return path.startsWith('/assets/') || path.startsWith('/icons/')
+  })
+
+  const excess = assetKeys.length - MAX_ASSET_ENTRIES
+
+  for (let index = 0; index < excess; index += 1) {
+    await cache.delete(assetKeys[index])
+  }
+}
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -38,7 +57,10 @@ self.addEventListener('fetch', (event) => {
             // permanente (assets são cache-first).
             if (response.ok) {
               const copy = response.clone()
-              void caches.open(CACHE).then((cache) => cache.put(event.request, copy))
+              void caches
+                .open(CACHE)
+                .then((cache) => cache.put(event.request, copy))
+                .then(() => trimAssetCache())
             }
             return response
           })
