@@ -13,3 +13,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+
+# Artefatos gerados pelo graphify (grafo de conhecimento, studio SPA, cache).
+# Reconstruiveis a partir do repositorio; nao versionar.
+.graphify/
