@@ -3,7 +3,7 @@ import { InventoryItem } from './InventoryItem'
 import { Order } from './Order'
 import { Payment } from './Payment'
 import { Product } from './Product'
-import { Queue, Stack } from './structures'
+import { Stack } from './structures'
 import type { AdminAction, PaymentMethod } from './types'
 
 export class StockService {
@@ -88,37 +88,6 @@ export class CheckoutService {
   }
 }
 
-export class OrderQueueService {
-  private queue = new Queue<Order>()
-
-  enqueue(order: Order) {
-    order.advance('queued')
-    this.queue.enqueue(order)
-  }
-
-  nextForPreparation() {
-    const order = this.queue.dequeue()
-
-    if (order) {
-      order.advance('preparing')
-    }
-
-    return order
-  }
-
-  peekNext() {
-    return this.queue.peek()
-  }
-
-  listQueue() {
-    return this.queue.toArray()
-  }
-
-  get size() {
-    return this.queue.size
-  }
-}
-
 export class ProductCatalogService {
   private products: Map<string, Product>
 
@@ -139,6 +108,10 @@ export class ProductCatalogService {
   }
 }
 
+// Demonstracao academica da Pilha (ver src/domain/structures.ts) e coberta por
+// domain.test.ts. O undo real do painel usa o array `adminHistory` em
+// src/App.tsx; no modo de dados reais nao ha undo — a trilha e a tabela
+// `stock_movements`.
 export class AdminActionHistory {
   private stack = new Stack<AdminAction>()
 

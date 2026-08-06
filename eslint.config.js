@@ -5,7 +5,9 @@ import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
 export default tseslint.config(
-  { ignores: ['dist', 'coverage', 'playwright-report', 'node_modules'] },
+  // .graphify guarda artefatos gerados (grafo, studio SPA empacotado); nao e
+  // codigo-fonte do app e nao deve ser lintado.
+  { ignores: ['dist', 'coverage', 'playwright-report', 'node_modules', '.graphify'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {

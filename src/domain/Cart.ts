@@ -2,6 +2,13 @@ import type { InventoryItem } from './InventoryItem'
 import type { Product } from './Product'
 import type { CartItemSnapshot } from './types'
 
+// As checagens de estoque deste carrinho sao FEEDBACK DE UX, nao garantia.
+// A autoridade sobre estoque e a RPC `checkout` no Postgres, que decrementa
+// condicionalmente na mesma transacao do pedido e levanta `insufficient_stock`
+// quando o item acabou entre a leitura e a compra (ver
+// supabase/migrations/*_atomic_checkout.sql e src/lib/checkoutApi.ts).
+// O parametro `stock` e opcional justamente porque o cliente pode nao ter o
+// dado: nao remova a validacao do servidor por achar que aqui ja basta.
 export class Cart {
   private items = new Map<string, CartItemSnapshot>()
 
