@@ -6,6 +6,7 @@ import {
   CheckoutService,
   InventoryItem,
   Product,
+  ProductCatalogService,
   Queue,
   Stack,
   StockService,
@@ -89,6 +90,32 @@ describe('canteen domain models', () => {
     expect(order.status).toBe('queued')
     expect(order.payment.status).toBe('approved')
     expect(stock.availableQuantity).toBe(3)
+  })
+
+  it('indexes the catalog by product id and hides deactivated products', () => {
+    const sandwich = makeProduct()
+    const juice = new Product({
+      id: 'juice',
+      name: 'Suco integral',
+      description: 'Produto de teste',
+      category: 'bebida',
+      priceCents: 600,
+      preparationMinutes: 2,
+      sustainabilityScore: 80
+    })
+    const catalog = new ProductCatalogService([sandwich])
+
+    // upsert indexa por id: o mesmo id atualiza em vez de duplicar
+    catalog.upsert(juice)
+    catalog.upsert(new Product({ ...sandwich, priceCents: 1500 }))
+
+    expect(catalog.listActive()).toHaveLength(2)
+    expect(catalog.listActive().find((p) => p.id === 'sandwich')?.priceCents).toBe(1500)
+
+    // remove desativa em vez de apagar, preservando o historico do cardapio
+    catalog.remove('juice')
+
+    expect(catalog.listActive().map((p) => p.id)).toEqual(['sandwich'])
   })
 
   it('uses a FIFO queue for order preparation', () => {
